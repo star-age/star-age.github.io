@@ -351,11 +351,6 @@ function update_errors() {
 }
 
 async function submit_star() {
-    if (is_population == true) {
-        submit_population();
-        return;
-    }
-
     var MG = document.getElementById("MG_input").value;
     var MoH = document.getElementById("MoH_input").value;
     var BP_RP = document.getElementById("BP_RP_input").value;
@@ -375,6 +370,11 @@ async function submit_star() {
     if (n == "") {
         n = 10_000;
         document.getElementById("n_input").value = n;
+    }
+
+    if (is_population == true) {
+        submit_population();
+        return;
     }
 
     var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
