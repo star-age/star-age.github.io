@@ -38,6 +38,7 @@ body{
     background-image: url('background.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
+    margin:0;
 }
 
 h1{
@@ -71,7 +72,14 @@ a{
     color: #2f302f;
 }
 
-#main_div, #second_div {
+#container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    justify-content: center;
+    gap: 0px;
+}
+
+#main_div, #pdf_div {
     margin: 0 auto;
     margin-top: -40px;
     margin-bottom: 25px;
@@ -85,10 +93,47 @@ a{
 }
 
 #main_div{
+    grid-column-start: 2;
     z-index: 2;
 }
 
-#second_div{
+#import_div {
+    z-index: 1;
+    background-image: url('background2.png');
+    background-repeat: repeat;
+    background-size: 100px, 100px;
+    box-shadow: 10px 0px 20px 5px rgba(69, 110, 76, 0.5);
+    border: none;
+    color: #ebe8dd;
+    padding-left:20px;
+    padding-right:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+    width: fit-content;
+    height: fit-content;
+    transform: rotate(90deg);
+    transform-origin: bottom left;
+    cursor: pointer;
+    transition: box-shadow .2s;
+    vertical-align: bottom;
+}
+
+#import_div .fa-file-import, #import_div .fa-file{
+    margin-right: 10px;
+}
+
+#import_div .fa-xmark{
+    margin-left: 10px;
+    margin-right: -10px;
+    font-size: 20px;
+    transform: translateY(3px);
+}
+
+#import_div:hover{
+    box-shadow: 12px 0px 20px 5px rgba(69, 110, 76, 0.6);
+}
+
+#pdf_div{
     z-index: 1;
     background-image: url('background2.png');
     background-repeat: repeat;
@@ -130,6 +175,11 @@ a{
 
 .draglayer .xy rect{
     cursor: crosshair !important;
+}
+
+label[disabled='disabled'],input[disabled='disabled'], select[disabled='disabled']{
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 input, select{

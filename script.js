@@ -73,6 +73,9 @@ var data = [];
 var isochrone_curves = [];
 var n_traces = 0;
 var n_histograms = 0;
+var population = [];
+var is_population = false;
+var n_pop = 0;
 
 function data_space_to_pixel_space(layout,data_size,direction) {
     if (direction == 'x'){
@@ -144,10 +147,148 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("model").addEventListener('change', function() {
         var model = document.getElementById("model").value;
         plot_isochrones(model);
+        submit_star();
+    });
+
+    $('#import_div').click(function() {
+        import_csv();
     });
 });
 
+function reset_import_button(){
+    is_population = false;
+    population = [];
+    data[0].visible = true;
+    n_pop = 0;
+
+    $('#submit').html('<div class="stars"></div>Estimate age<div class="stars"></div>');
+    $('#MoH_input').attr('disabled', false);
+    $('#MG_input').attr('disabled', false);
+    $('#BP_RP_input').attr('disabled', false);
+    $('label[for="MoH_input"]').attr('disabled', false);
+    $('label[for="MG_input"]').attr('disabled', false);
+    $('label[for="BP_RP_input"]').attr('disabled', false);
+
+    Plotly.deleteTraces('hr_diagram',-1);
+    Plotly.redraw('hr_diagram');
+    submit_star();
+
+    $('#import_div').html('<i class="fa-solid fa-file-import"></i>Import a csv file');
+}
+
+function populate_cmd(stars) {
+    if (n_pop > 0) {
+        Plotly.deleteTraces('hr_diagram',-1);
+    }
+
+    is_population = true;
+    data[0].visible = false;
+
+    population = stars;
+
+    submit_population();
+}
+
+async function submit_population() {
+    var xs = [];
+    var ys = [];
+    var all_ages = [];
+
+    for (var i = 0; i < population.length; i++) {
+        var star = population[i];
+        var MG = star['MG'];
+        var BP_RP = star['BP-RP'];
+        var MoH = star['[M/H]'];
+
+        var e_MG = document.getElementById("eMG_input").value;
+        var e_BP_RP = document.getElementById("eBP_RP_input").value;
+        var e_MoH = document.getElementById("eMoH_input").value;
+
+        var model_name = document.getElementById("model").value;
+        var n = document.getElementById("n_input").value;
+
+        var [ages,_age,_age_std] = await estimate_age(model_name, MG, MoH, BP_RP, e_MG, e_MoH, e_BP_RP, n);
+        for (var j = 0; j < ages.length; j++) {
+            if (isNaN(ages[j])) continue;
+            all_ages.push(ages[j]);
+        }
+
+        xs.push(BP_RP);
+        ys.push(MG);
+    }
+
+    plot_age_distribution(all_ages);
+    
+    var points = {
+        x: xs,
+        y: ys,
+        mode: 'markers',
+        marker: {
+            symbol: 'star',
+            size: 7,
+            color: 'rgba(0,0,0,1)'
+        },
+        hovertext: '',
+        hoverinfo: 'none',
+        zorder:2,
+        visible: true
+    };
+    Plotly.addTraces('hr_diagram', points);
+    n_pop = xs.length;
+
+    var age = 0;
+    all_ages.sort((a, b) => a - b);
+    var mid = Math.floor(all_ages.length / 2);
+    age = all_ages.length % 2 !== 0 ? all_ages[mid] : (all_ages[mid - 1] + all_ages[mid]) / 2;
+    var age_std = Math.sqrt(all_ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / all_ages.length);
+
+    document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+}
+
+function import_csv() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var csv = e.target.result;
+                Papa.parse(csv, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: function(results) {
+                        $('#submit').html('<div class="stars"></div>Estimate ages<div class="stars"></div>');
+                        $('#MoH_input').attr('disabled', true);
+                        $('#MG_input').attr('disabled', true);
+                        $('#BP_RP_input').attr('disabled', true);
+                        $('label[for="MoH_input"]').attr('disabled', true);
+                        $('label[for="MG_input"]').attr('disabled', true);
+                        $('label[for="BP_RP_input"]').attr('disabled', true);
+                        var close = $('i').addClass('fa-solid fa-xmark');
+                        $('#import_div').empty();
+                        $('#import_div').append('<i class="fa-solid fa-file"></i>' + file.name);
+                        $('#import_div').append(close);
+                        close.click(function(ev) {
+                            ev.stopPropagation();
+                           reset_import_button();
+                        });
+                        populate_cmd(results.data);
+                    }
+                });
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
 function update_inputs(x, y) {
+    if (is_population == true) {
+        reset_import_button();
+        is_population = false;
+    }
     document.getElementById("MG_input").value = y.toFixed(2);
     document.getElementById("BP_RP_input").value = x.toFixed(2);
 }
@@ -209,7 +350,12 @@ function update_errors() {
     draw_gaussian_point(parseFloat(BP_RP), parseFloat(MG), parseFloat(eBP_RP), parseFloat(eMG));
 }
 
-function submit_star() {
+async function submit_star() {
+    if (is_population == true) {
+        submit_population();
+        return;
+    }
+
     var MG = document.getElementById("MG_input").value;
     var MoH = document.getElementById("MoH_input").value;
     var BP_RP = document.getElementById("BP_RP_input").value;
@@ -231,7 +377,13 @@ function submit_star() {
         document.getElementById("n_input").value = n;
     }
 
-    estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
+    var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
+    console.log(age, age_std);
+    document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+    data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+    data[0].hoverinfo = 'text';
+    Plotly.redraw('hr_diagram');
+    plot_age_distribution(ages);
     update_errors();
 }
 
@@ -370,7 +522,7 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
         MoH = parseFloat(MoH);
         MG = parseFloat(MG);
         BP_RP = parseFloat(BP_RP);
-        ages = [];
+        var ages = [];
         for (var i = 0; i < n; i++) {
             var a_new = [
                 gaussianRandom(MoH, parseFloat(eMoH)),
@@ -380,16 +532,12 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
             age = predict_nn(weights, biases, means, stds, a_new, n);
             ages.push(age[0]);
         }
-        age = 0;
+        var age = 0;
         ages.sort((a, b) => a - b);
         var mid = Math.floor(ages.length / 2);
         age = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
         age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / ages.length);
-        document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
-        data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
-        data[0].hoverinfo = 'text';
-        Plotly.redraw('hr_diagram');
-        plot_age_distribution(ages);
+        return [ages, age, age_std];
     } catch (error) {
         console.log(error);
     }
