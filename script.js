@@ -377,8 +377,11 @@ async function submit_star() {
         return;
     }
 
+    if (MG == "" || BP_RP == "") {
+        return;
+    }
+
     var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
-    console.log(age, age_std);
     document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hoverinfo = 'text';
