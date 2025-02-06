@@ -173,14 +173,10 @@ function reset_import_button(){
     Plotly.redraw('hr_diagram');
     submit_star();
 
-    $('#import_div').html('<i class="fa-solid fa-file-import"></i>Import a csv file');
+    $('#import_div').html('<i class="fa-solid fa-file-import"></i>Import csv file');
 }
 
 function populate_cmd(stars) {
-    if (n_pop > 0) {
-        Plotly.deleteTraces('hr_diagram',-1);
-    }
-
     is_population = true;
     data[0].visible = false;
 
@@ -219,22 +215,24 @@ async function submit_population() {
 
     plot_age_distribution(all_ages);
     
-    var points = {
-        x: xs,
-        y: ys,
-        mode: 'markers',
-        marker: {
-            symbol: 'star',
-            size: 7,
-            color: 'rgba(0,0,0,1)'
-        },
-        hovertext: '',
-        hoverinfo: 'none',
-        zorder:2,
-        visible: true
-    };
-    Plotly.addTraces('hr_diagram', points);
-    n_pop = xs.length;
+    if (n_pop == 0) {
+        var points = {
+            x: xs,
+            y: ys,
+            mode: 'markers',
+            marker: {
+                symbol: 'star',
+                size: 7,
+                color: 'rgba(0,0,0,1)'
+            },
+            hovertext: '',
+            hoverinfo: 'none',
+            zorder:2,
+            visible: true
+        };
+        Plotly.addTraces('hr_diagram', points);
+        n_pop = xs.length;
+    }
 
     var age = 0;
     all_ages.sort((a, b) => a - b);
