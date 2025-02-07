@@ -185,6 +185,23 @@ function populate_cmd(stars) {
     submit_population();
 }
 
+function compute_histogram(ages) {
+    var hist = [];
+    for (var i = 0; i < 140; i++) {
+        var bin_min = i / 10;
+        var bin_max = (i + 1) / 10;
+        var bin_n = 0;
+        for (var j = 0; j < ages.length; j++) {
+            var age = ages[j];
+            if (age >= bin_min && age < bin_max) {
+                bin_n++;
+            }
+        }
+        hist.push(bin_n/ages.length);
+    }
+    return hist;
+}
+
 async function submit_population() {
     var xs = [];
     var ys = [];
@@ -204,16 +221,37 @@ async function submit_population() {
         var n = document.getElementById("n_input").value;
 
         var [ages,_age,_age_std] = await estimate_age(model_name, MG, MoH, BP_RP, e_MG, e_MoH, e_BP_RP, n);
-        for (var j = 0; j < ages.length; j++) {
-            if (isNaN(ages[j])) continue;
-            all_ages.push(ages[j]);
-        }
+        
+        all_ages.push(ages);
 
         xs.push(BP_RP);
         ys.push(MG);
     }
 
-    plot_age_distribution(all_ages);
+    var flat_ages = [];
+    //var histograms = [];
+    for (var i = 0; i < all_ages.length; i++) {
+        for (var j = 0; j < all_ages[i].length; j++) {
+            if (!isNaN(all_ages[i][j])) {
+                flat_ages.push(all_ages[i][j]);
+            }
+        }
+        //histograms.push(compute_histogram(all_ages[i]));
+    }
+
+    if (false){
+        var final_histogram = [];
+        for (var i = 0; i < histograms[0].length; i++) {
+            var product = histograms[0][i];
+            for (var j = 1; j < histograms.length; j++) {
+                product *= histograms[j][i];
+            }
+            final_histogram.push(product);
+        }
+        console.log(final_histogram);
+    }
+
+    plot_age_distribution(flat_ages);
     
     if (n_pop == 0) {
         var points = {
@@ -235,10 +273,10 @@ async function submit_population() {
     }
 
     var age = 0;
-    all_ages.sort((a, b) => a - b);
-    var mid = Math.floor(all_ages.length / 2);
-    age = all_ages.length % 2 !== 0 ? all_ages[mid] : (all_ages[mid - 1] + all_ages[mid]) / 2;
-    var age_std = Math.sqrt(all_ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / all_ages.length);
+    flat_ages.sort((a, b) => a - b);
+    var mid = Math.floor(flat_ages.length / 2);
+    age = flat_ages.length % 2 !== 0 ? flat_ages[mid] : (flat_ages[mid - 1] + flat_ages[mid]) / 2;
+    var age_std = Math.sqrt(flat_ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / flat_ages.length);
 
     document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
 }
