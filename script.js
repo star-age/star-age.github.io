@@ -55,7 +55,16 @@ var histogram_layout = {
         fixedrange: true,
         showticklabels: false
     },
-    showlegend: false,
+    showlegend: true,
+    legend: {
+        font:{
+            color:'#ffffff',
+        },
+        x: 1,
+        xanchor: 'right',
+        y: 1,
+        itemclick:false
+    },
     margin:{
             l: 50,
             r: 50,
@@ -185,7 +194,7 @@ function populate_cmd(stars) {
     submit_population();
 }
 
-function compute_histogram(ages) {
+function compute_histogram(ages,normalised='None') {
     var hist = [];
     for (var i = 0; i < 140; i++) {
         var bin_min = i / 10;
@@ -193,16 +202,49 @@ function compute_histogram(ages) {
         var bin_n = 0;
         for (var j = 0; j < ages.length; j++) {
             var age = ages[j];
-            if (age >= bin_min && age < bin_max) {
+            if (!isNaN(age) && age >= bin_min && age < bin_max) {
                 bin_n++;
             }
         }
-        hist.push(bin_n/ages.length);
+        if (normalised == 'density') {
+            hist.push(bin_n/ages.length);
+        }
+        else {
+            hist.push(bin_n);
+        }
+    }
+
+    if (normalised == 'max') {
+        var hist_max = Math.max(...hist);
+        for (var i = 0; i < hist.length; i++) {
+            hist[i] = hist[i] / hist_max;
+        }
     }
     return hist;
 }
 
+function get_max_occurence(ages) {
+    var hist = [];
+    for (var i = 0; i < 140; i++) {
+        var bin_min = i / 10;
+        var bin_max = (i + 1) / 10;
+        var bin_n = 0;
+        for (var j = 0; j < ages.length; j++) {
+            var age = ages[j];
+            if (!isNaN(age) && age >= bin_min && age < bin_max) {
+                bin_n++;
+            }
+        }
+        hist.push(bin_n);
+    }
+    var max_occurence = Math.max(...hist);
+    var max_bin = hist.indexOf(max_occurence);
+    return [max_bin,max_occurence];
+}
+
 async function submit_population() {
+    $('body').addClass('waiting');
+
     var xs = [];
     var ys = [];
     var all_ages = [];
@@ -229,29 +271,33 @@ async function submit_population() {
     }
 
     var flat_ages = [];
-    //var histograms = [];
+    var histograms = [];
     for (var i = 0; i < all_ages.length; i++) {
         for (var j = 0; j < all_ages[i].length; j++) {
             if (!isNaN(all_ages[i][j])) {
                 flat_ages.push(all_ages[i][j]);
             }
         }
-        //histograms.push(compute_histogram(all_ages[i]));
+        histograms.push(compute_histogram(all_ages[i],normalised='max'));
     }
 
-    if (false){
+    if (true){
         var final_histogram = [];
         for (var i = 0; i < histograms[0].length; i++) {
-            var product = histograms[0][i];
+            var product = (histograms[0][i] + 0.01);
             for (var j = 1; j < histograms.length; j++) {
-                product *= histograms[j][i];
+                if (isNaN(histograms[j])) {
+                    continue;
+                }
+                product *= (histograms[j][i] + 0.01);
             }
             final_histogram.push(product);
         }
-        console.log(final_histogram);
+        var sum = final_histogram.reduce((a,b) => a + b, 0);
+        final_histogram = final_histogram.map(e => e / sum);
     }
 
-    plot_age_distribution(flat_ages);
+    plot_age_distribution(flat_ages,final_histogram);
     
     if (n_pop == 0) {
         var points = {
@@ -279,6 +325,8 @@ async function submit_population() {
     var age_std = Math.sqrt(flat_ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / flat_ages.length);
 
     document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+
+    $('body').removeClass('waiting');
 }
 
 function import_csv() {
@@ -417,7 +465,12 @@ async function submit_star() {
         return;
     }
 
+    $('body').addClass('waiting');
+
     var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
+
+    $('body').removeClass('waiting');
+
     document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hoverinfo = 'text';
@@ -583,9 +636,10 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
     
 }
 
-function plot_age_distribution(ages) {
+function plot_age_distribution(ages,histogram=null) {
     if (n_histograms > 0) {
-        Plotly.deleteTraces('age_distribution',0);
+        var traces = document.getElementById('age_distribution').data.length;
+        Plotly.deleteTraces('age_distribution', Array.from(Array(traces).keys()));
     }
     var trace = {
         x: ages,
@@ -606,8 +660,46 @@ function plot_age_distribution(ages) {
             color: 'rgba(235, 232, 221,.75)'
         },
         hoverinfo: 'x',
+        name: 'Sum of individual Monte Carlo realisations'
     }
     Plotly.addTraces('age_distribution', trace);
+
+    if (histogram != null) {
+        var max_value = get_max_occurence(ages)[1];
+
+        var ys = [];
+        var hist_max = Math.max(...histogram);
+        
+        for (var i = 0; i < histogram.length; i++) {
+            ys.push(i/10);
+            histogram[i] = histogram[i]/hist_max*max_value;
+        }
+
+        var min_value = Math.min(...histogram);
+
+        var trace = {
+            x: ys,
+            y: histogram,
+            mode: 'lines',
+            line: {
+                color: 'rgba(255, 255, 255,1)',
+                width: 1
+            },
+            hoverinfo: 'x',
+            name: 'Product of G functions'
+        }
+        
+        Plotly.addTraces('age_distribution', trace);
+        Plotly.relayout('age_distribution', {
+            showlegend: true,
+            'yaxis.range': [min_value, max_value]
+        });
+    }
+    else{
+        Plotly.relayout('age_distribution', {
+            showlegend: false
+        });
+    }
     n_histograms = 1;
 }
 
