@@ -171,7 +171,21 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#import_div').click(function() {
         import_csv();
     });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && $('#info').is(':visible')) {
+            toggle_help();
+        }
+    });
+
+    document.getElementById('info_bg').addEventListener('click', function() {
+        toggle_help();
+    });
 });
+
+function toggle_help(){
+    $('#info').fadeToggle();
+}
 
 function reset_import_button(){
     is_population = false;

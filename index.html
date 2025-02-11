@@ -16,7 +16,51 @@
 <body>
     <h1>Stellar age estimator</h1>
     <h2>Using Neural networks trained on stellar evolution models</h2>
+    <div id="info">
+        <div id="info_bg"></div>
+        <i id="info_close" onclick="toggle_help()" class="fa-solid fa-xmark"></i>
+        <div id="info_container">
+            <p>
+                This web application allows you to estimate the age of a star/star population using neural networks trained on stellar evolution models.
+            </p>
+            <p>
+                The neural networks were trained on the
+                <a target="_blank" href="http://basti-iac.oa-abruzzo.inaf.it/">BaSTI</a>,
+                <a target="_blank" href="https://rcweb.dartmouth.edu/stellar/">Dartmouth</a>,
+                <a target="_blank" href="https://waps.cfa.harvard.edu/MIST/">MIST</a>,
+                <a target="_blank" href="https://stev.oapd.inaf.it/PARSEC/">PARSEC</a>,
+                <a target="_blank" href="https://www.unige.ch/sciences/astro/evolution/en/database/syclist">SYCLIST</a> and
+                <a target="_blank" href="http://www.astro.yale.edu/yapsi/">YaPSI</a> isochrones. <span class="important">Don't use the YaPSI isochrones, they are broken right now.</span>
+                The neural networks are simple Multi-Layer Perceptrons with 4 hidden layers of 32,64,64 & 32 neurons, trained for 200 epochs. The training data size, i.e. the total number of points in the isochrone sets, depends on the model used.
+            </p>
+            <p>
+                They take as input the [M/H], σ([M/H]), MG, σ(MG), BP-RP & σ(BP-RP) of a star and return the age of the star and its distribution.
+                You can choose the age estimate method between the mean, median and mode of the distribution <span class="important">(to do)</span>, while the age uncertainty given is computed as the standard deviation in the age distribution.
+            </p>
+            <p>
+                You can click anywhere on the Color-Magnitude Diagram to set the MG/BP-RP of a star. You can also directly input its value using the input tags on the right.
+                Changing any input will automatically trigger the computation of a new age estimate.
+            </p>
+            <p>
+                For each stellar evolution model, 3 sets of isochrones are used to display in the CMD. Depending on the metallicity chosen, the closest set will be used <span class="important">(to do)</span>.
+            </p>
+            <p>
+                The <span class="important">Number of samples</span> input sets the number of Monte Carlo realisations used to compute the age distribution. 1000 is usually good enough to get a smooth distribution.
+            </p>
+            <p>
+                The <span class="important">Import csv file</span> button on the right lets you import a star population to get a global age estimate/distribution. Your csv file should have at least the following columns : [M/H], MG & BP-RP.
+                For the uncertainties, you can either have additional columns named e[M/H], eMG & eBP-RP or directly input global uncertainties in the σ([M/H]), σ(MG) & σ(BP-RP) inputs <span class="important">(to do)</span>.
+            </p>
+            <p>
+                The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star.
+            </p>
+            <p>
+                The code for this web application, which also contains the weights and biases of the trained neural networks, can be found <a target="_blank" href="https://github.com/star-age/star-age.github.io"><i class="fa-brands fa-github"></i> here</a>. Feel free to contribute.
+            </p>
+        </div>
+    </div>
     <div id="container">
+        <div id="help_div" onclick="toggle_help()"><i class="fa-solid fa-circle-question"></i> Help</div>
         <div id="main_div">
             <div id="big_div">
                 <div id="hr_diagram"></div>
