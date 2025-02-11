@@ -200,6 +200,15 @@ function reset_import_button(){
     $('label[for="MoH_input"]').attr('disabled', false);
     $('label[for="MG_input"]').attr('disabled', false);
     $('label[for="BP_RP_input"]').attr('disabled', false);
+    $('#eMoH_input').attr('disabled', false);
+    $('#eMoH_range').attr('disabled', false);
+    $('#eMG_input').attr('disabled', false);
+    $('#eMG_range').attr('disabled', false);
+    $('#eBP_RP_input').attr('disabled', false);
+    $('#eBP_RP_range').attr('disabled', false);
+    $('label[for="eMoH_input"]').attr('disabled', false);
+    $('label[for="eMoH_range"]').attr('disabled', false);
+    $('label[for="eMG_input"]').attr('disabled', false);
 
     Plotly.deleteTraces('hr_diagram',-1);
     Plotly.redraw('hr_diagram');
@@ -270,6 +279,19 @@ async function submit_population() {
     var xs = [];
     var ys = [];
     var all_ages = [];
+    var has_uncertainties = false;
+    if (population[0]['eMG'] != null){
+        has_uncertainties = true;
+        $('#eMoH_input').attr('disabled', true);
+        $('#eMoH_range').attr('disabled', true);
+        $('#eMG_input').attr('disabled', true);
+        $('#eMG_range').attr('disabled', true);
+        $('#eBP_RP_input').attr('disabled', true);
+        $('#eBP_RP_range').attr('disabled', true);
+        $('label[for="eMoH_input"]').attr('disabled', true);
+        $('label[for="eMoH_range"]').attr('disabled', true);
+        $('label[for="eMG_input"]').attr('disabled', true);
+    }
 
     for (var i = 0; i < population.length; i++) {
         var star = population[i];
@@ -277,9 +299,16 @@ async function submit_population() {
         var BP_RP = star['BP-RP'];
         var MoH = star['[M/H]'];
 
-        var e_MG = document.getElementById("eMG_input").value;
-        var e_BP_RP = document.getElementById("eBP_RP_input").value;
-        var e_MoH = document.getElementById("eMoH_input").value;
+        if (has_uncertainties) {
+            var e_MG = star['eMG'];
+            var e_BP_RP = star['eBP-RP'];
+            var e_MoH = star['e[M/H]'];
+        }
+        else{
+            var e_MG = document.getElementById("eMG_input").value;
+            var e_BP_RP = document.getElementById("eBP_RP_input").value;
+            var e_MoH = document.getElementById("eMoH_input").value;
+        }
 
         var model_name = document.getElementById("model").value;
         var n = document.getElementById("n_input").value;
@@ -303,21 +332,19 @@ async function submit_population() {
         histograms.push(compute_histogram(all_ages[i],normalised='max'));
     }
 
-    if (true){
-        var final_histogram = [];
-        for (var i = 0; i < histograms[0].length; i++) {
-            var product = (histograms[0][i] + 0.01);
-            for (var j = 1; j < histograms.length; j++) {
-                if (isNaN(histograms[j])) {
-                    continue;
-                }
-                product *= (histograms[j][i] + 0.01);
+    var final_histogram = [];
+    for (var i = 0; i < histograms[0].length; i++) {
+        var product = (histograms[0][i] + 0.01);
+        for (var j = 1; j < histograms.length; j++) {
+            if (isNaN(histograms[j])) {
+                continue;
             }
-            final_histogram.push(product);
+            product *= (histograms[j][i] + 0.01);
         }
-        var sum = final_histogram.reduce((a,b) => a + b, 0);
-        final_histogram = final_histogram.map(e => e / sum);
+        final_histogram.push(product);
     }
+    var sum = final_histogram.reduce((a,b) => a + b, 0);
+    final_histogram = final_histogram.map(e => e / sum);
 
     plot_age_distribution(flat_ages,final_histogram);
     
