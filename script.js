@@ -80,6 +80,7 @@ var config = {
 
 var data = [];
 var isochrone_curves = [];
+var models_isochrones = {};
 var n_traces = 0;
 var n_histograms = 0;
 var population = [];
@@ -145,6 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
     set_controls();
     add_axes();
     var model = document.getElementById("model").value;
+
+    var modelSelect = document.getElementById("model");
+    for (var i = 0; i < modelSelect.options.length; i++) {
+        var modelName = modelSelect.options[i].value;
+        models_isochrones[modelName] = [];
+    }
+
     plot_isochrones(model);
     document.getElementById('hr_diagram').addEventListener('click', function(event) {
         var bb = event.target.getBoundingClientRect();
@@ -156,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("model").addEventListener('change', function() {
         var model = document.getElementById("model").value;
         plot_isochrones(model);
+        n_pop = 0;
         submit_star();
     });
 
@@ -190,7 +199,6 @@ function populate_cmd(stars) {
     data[0].visible = false;
 
     population = stars;
-
     submit_population();
 }
 
@@ -300,6 +308,7 @@ async function submit_population() {
     plot_age_distribution(flat_ages,final_histogram);
     
     if (n_pop == 0) {
+        console.log('plot');
         var points = {
             x: xs,
             y: ys,
@@ -504,9 +513,11 @@ function load_isochrones(model) {
 }
 
 function remove_isochrones() {
+    var traces = [];
     for (var i = 0; i < n_traces; i++) {
-        Plotly.deleteTraces('hr_diagram',-1);
+        traces.push(-i-1);
     }
+    Plotly.deleteTraces('hr_diagram',traces);
 }
 
 async function plot_isochrones(model) {
@@ -516,7 +527,13 @@ async function plot_isochrones(model) {
         var MG_max = 0;
         var BP_RP_min = 0;
         var BP_RP_max = 0;
-        var isochrones = await load_isochrones(model);
+        if (models_isochrones[model].length == 0) {
+            var isochrones = await load_isochrones(model);
+            models_isochrones[model] = isochrones;
+        }
+        else {
+            var isochrones = models_isochrones[model];
+        }
         var traces = [];
         n_traces = isochrones.length;
         isochrone_curves = [];
@@ -664,9 +681,9 @@ function plot_age_distribution(ages,histogram=null) {
     }
     Plotly.addTraces('age_distribution', trace);
 
-    if (histogram != null) {
-        var max_value = get_max_occurence(ages)[1];
+    var max_value = get_max_occurence(ages)[1];
 
+    if (histogram != null) {
         var ys = [];
         var hist_max = Math.max(...histogram);
         
@@ -697,7 +714,8 @@ function plot_age_distribution(ages,histogram=null) {
     }
     else{
         Plotly.relayout('age_distribution', {
-            showlegend: false
+            showlegend: false,
+            'yaxis.range': [0, max_value]
         });
     }
     n_histograms = 1;
