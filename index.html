@@ -12,6 +12,14 @@
     <script src="https://kit.fontawesome.com/1c5060d9dc.js" crossorigin="anonymous"></script>
     <script src='https://cdn.plot.ly/plotly-3.0.0.min.js'></script>
     <script src="script.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+        <script src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'></script>
 </head>
 <body>
     <h1>Stellar age estimator</h1>
@@ -21,7 +29,7 @@
         <i id="info_close" onclick="toggle_help()" class="fa-solid fa-xmark"></i>
         <div id="info_container">
             <p>
-                This web application allows you to estimate the age of a star/star population using neural networks trained on stellar evolution models.
+                This web application provides estimates of the age of a star/star population using neural networks trained on stellar evolution models.
             </p>
             <p>
                 The neural networks were trained on the
@@ -34,11 +42,11 @@
                 The neural networks are simple Multi-Layer Perceptrons with 4 hidden layers of 32,64,64 & 32 neurons, trained for 200 epochs. The training data size, i.e. the total number of points in the isochrone sets, depends on the model used.
             </p>
             <p>
-                They take as input the [M/H], σ([M/H]), MG, σ(MG), BP-RP & σ(BP-RP) of a star and return the age of the star and its distribution.
-                You can choose the age estimate method between the mean, median and mode of the distribution <span class="important">(to do)</span>, while the age uncertainty given is computed as the standard deviation in the age distribution.
+                They take as input the <span class="script">[M/H]</span>, <span class="script">σ([M/H])</span>, <span class="script">MG</span>, <span class="script">σ(MG)</span>, <span class="script">BP-RP</span> & <span class="script">σ(BP-RP)</span> of a star and return the age of the star and its distribution.
+                The age estimate is given in terms of the mean, median and mode of the distribution, while the age uncertainty given is computed as the standard deviation in the age distribution.
             </p>
             <p>
-                You can click anywhere on the Color-Magnitude Diagram to set the MG/BP-RP of a star. You can also directly input its value using the input tags on the right.
+                You can click anywhere on the Color-Magnitude Diagram to set the <span class="script">MG</span> & <span class="script">BP-RP</span> of a star. You can also directly input its value using the input tags on the right.
                 Changing any input will automatically trigger the computation of a new age estimate.
             </p>
             <p>
@@ -48,19 +56,20 @@
                 The <span class="important">Number of samples</span> input sets the number of Monte Carlo realisations used to compute the age distribution. 1000 is usually good enough to get a smooth distribution.
             </p>
             <p>
-                The <span class="important">Import csv file</span> button on the right lets you import a star population to get a global age estimate/distribution. Your csv file should have at least the following columns : [M/H], MG & BP-RP.
-                For the uncertainties, you can either have additional columns named e[M/H], eMG & eBP-RP or directly input global uncertainties in the σ([M/H]), σ(MG) & σ(BP-RP) inputs <span class="important">(to do)</span>.
+                The <span class="important">Import csv file</span> button lets you import a star population to get a global age estimate/distribution. Your csv file should have at least the following columns : <span class="script">[M/H]</span>, <span class="script">MG</span> & <span class="script">BP-RP</span>.
+                For the uncertainties, you can either have additional columns named <span class="script">e[M/H]</span>, <span class="script">eMG</span> & <span class="script">eBP-RP</span> <span class="important">(to do)</span> or directly input global uncertainties in the <span class="script">σ([M/H])</span>, <span class="script">σ(MG)</span> & <span class="script">σ(BP-RP)</span> inputs.
             </p>
             <p>
-                The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star.
+                The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star (as a line).
             </p>
             <p>
-                The code for this web application, which also contains the weights and biases of the trained neural networks, can be found <a target="_blank" href="https://github.com/star-age/star-age.github.io"><i class="fa-brands fa-github"></i> here</a>. Feel free to contribute.
+                The code for this web application, along with the weights and biases of the trained neural networks, can be found <a target="_blank" href="https://github.com/star-age/star-age.github.io"><i class="fa-brands fa-github"></i> here</a>. Feel free to contribute.
             </p>
         </div>
     </div>
     <div id="container">
         <div id="help_div" onclick="toggle_help()"><i class="fa-solid fa-circle-question"></i> Help</div>
+        <div id="import_div"><i class="fa-solid fa-file-import"></i>Import csv file</div>
         <div id="main_div">
             <div id="big_div">
                 <div id="hr_diagram"></div>
@@ -139,10 +148,9 @@
                 </div>
             </div>
         </div>
-        <div id="import_div"><i class="fa-solid fa-file-import"></i>Import csv file</div>
     </div>
     <div id="pdf_div">
-        <p id="result">Click on Estimate age or on the CMD to estimate the age of a star</p>
+        <div id="result"><span>Click on Estimate age or on the CMD to estimate the age of a star</span></div>
         <div id="age_distribution"></div>
     </div>
 

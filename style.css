@@ -91,59 +91,59 @@ a{
 }
 
 #container {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    justify-content: center;
-    gap: 0px;
+    margin:0 auto;
 }
 
 #main_div, #pdf_div {
-    margin: 0 auto;
-    margin-top: -40px;
-    margin-bottom: 25px;
-    padding:25px;
-    padding-top: 0px;
     border: 1px solid #2f302f;
     box-shadow: 0px 20px 40px 10px rgba(69, 110, 76, 0.35);
     width: fit-content;
     background-color: #ebe8dd;
+    margin: 0 auto;
+    margin-bottom: 25px;
+    padding:25px;
+    padding-top: 0px;
     position: relative;
 }
 
+#pdf_div{
+    margin-top: -40px;
+}
+
 #main_div{
-    grid-column-start: 2;
+    margin-top: -2px;
     z-index: 2;
 }
 
 #import_div {
-    grid-column-start: 3;
+    display: inline-block;
+    font: 15px RobotoSlab;
     z-index: 1;
     background-image: url('background2.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
-    box-shadow: 10px 0px 20px 5px rgba(69, 110, 76, 0.5);
+    box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
     border: none;
     color: #ebe8dd;
     padding-left:20px;
     padding-right:20px;
     padding-top:10px;
-    padding-bottom:10px;
+    padding-bottom:7px;
     width: fit-content;
-    height: fit-content;
-    transform: rotate(90deg);
-    transform-origin: bottom left;
+    height: 25px;
     cursor: pointer;
     transition: box-shadow .2s;
-    vertical-align: bottom;
+    margin-left: 15px;
 }
 
 #help_div {
-    grid-column-start: 1;
+    display: inline-block;
+    font: 15px RobotoSlab;
     z-index: 1;
     background-image: url('background2.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
-    box-shadow: 10px 0px 20px 5px rgba(69, 110, 76, 0.5);
+    box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
     border: none;
     color: #ebe8dd;
     padding-left:20px;
@@ -152,11 +152,13 @@ a{
     padding-bottom:10px;
     width: fit-content;
     height: fit-content;
-    transform: rotate(-90deg);
-    transform-origin: bottom right;
     cursor: pointer;
     transition: box-shadow .2s;
-    vertical-align: bottom;
+    margin-left: 20%;
+}
+
+#help_div:hover,#import_div:hover{
+    box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
 #info{
@@ -205,6 +207,11 @@ a{
     font-weight:bolder;
 }
 
+#info_container .script{
+    font-family: RobotoSlab;
+    font-weight: bold;
+}
+
 #info_container p{
     font-size:17px;
     text-align: left;
@@ -221,11 +228,20 @@ a{
     padding-top: 7px;
     color:#ebe8dd;
     background-image: url('background2.png');
-    box-shadow: 10px 0px 20px 5px rgba(69, 110, 76, 0.5);
+    box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
+    transition: box-shadow .2s;
+}
+
+#info_close:hover{
+    box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
 #help_div i{
     margin-right: 5px;
+}
+
+#help_div i, #import_div i{
+    cursor: pointer;
 }
 
 #import_div .fa-file-import, #import_div .fa-file{
@@ -236,11 +252,7 @@ a{
     margin-left: 10px;
     margin-right: -10px;
     font-size: 20px;
-    transform: translateY(3px);
-}
-
-#import_div:hover{
-    box-shadow: 12px 0px 20px 5px rgba(69, 110, 76, 0.6);
+    transform: translateY(2px);
 }
 
 #pdf_div{
@@ -256,8 +268,6 @@ a{
 }
 
 #result {
-    font-size: 17px;
-    font-family: RobotoSlab;
     margin:0 auto;
     margin-top: 0px;
     text-align: center;
@@ -265,6 +275,20 @@ a{
     padding-left: 10px;
     padding-right: 10px;
     width: fit-content;
+}
+
+#result span{
+    display: inline-block;
+    font-size: 17px;
+    font-family: RobotoSlab;
+    margin-left:20px;
+    margin-right: 20px;
+}
+
+#result .underscore{
+    display: inline-block;
+    vertical-align: sub;
+    font-size: 12px;
 }
 
 #big_div{
@@ -343,6 +367,7 @@ button{
     padding-bottom: 10px;
     padding-left: 5px;
     padding-right: 5px;
+    width:210px;
 }
 
 button:hover{

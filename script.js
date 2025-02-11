@@ -322,7 +322,6 @@ async function submit_population() {
     plot_age_distribution(flat_ages,final_histogram);
     
     if (n_pop == 0) {
-        console.log('plot');
         var points = {
             x: xs,
             y: ys,
@@ -341,13 +340,7 @@ async function submit_population() {
         n_pop = xs.length;
     }
 
-    var age = 0;
-    flat_ages.sort((a, b) => a - b);
-    var mid = Math.floor(flat_ages.length / 2);
-    age = flat_ages.length % 2 !== 0 ? flat_ages[mid] : (flat_ages[mid - 1] + flat_ages[mid]) / 2;
-    var age_std = Math.sqrt(flat_ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / flat_ages.length);
-
-    document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+    display_age(flat_ages);
 
     $('body').removeClass('waiting');
 }
@@ -373,7 +366,7 @@ function import_csv() {
                         $('label[for="MoH_input"]').attr('disabled', true);
                         $('label[for="MG_input"]').attr('disabled', true);
                         $('label[for="BP_RP_input"]').attr('disabled', true);
-                        var close = $('i').addClass('fa-solid fa-xmark');
+                        var close = $('<i>').addClass('fa-solid fa-xmark');
                         $('#import_div').empty();
                         $('#import_div').append('<i class="fa-solid fa-file"></i>' + file.name);
                         $('#import_div').append(close);
@@ -494,12 +487,26 @@ async function submit_star() {
 
     $('body').removeClass('waiting');
 
-    document.getElementById("result").innerHTML = 't = ' + age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+    display_age(ages);
     data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hoverinfo = 'text';
     Plotly.redraw('hr_diagram');
     plot_age_distribution(ages);
     update_errors();
+}
+
+function display_age(ages){
+    ages.sort((a, b) => a - b);
+    var mid = Math.floor(ages.length / 2);
+    var median = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
+    var mean = ages.reduce((a,b) => a + b, 0) / ages.length;
+    var mode = get_max_occurence(ages)[0] / 10;
+    var age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - mean, 2), 0) / ages.length);
+
+    document.getElementById("result").innerHTML = 
+    '<span>t<p class="underscore">mean</p> = ' + mean.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+    '<span>t<p class="underscore">median</p> = ' + median.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+    '<span>t<p class="underscore">mode</p> = ' + mode.toFixed(2) + ' ± ' + age_std.toFixed(2) + ' Gyr</span>';
 }
 
 function load_model(model_name) {
@@ -691,7 +698,7 @@ function plot_age_distribution(ages,histogram=null) {
             color: 'rgba(235, 232, 221,.75)'
         },
         hoverinfo: 'x',
-        name: 'Sum of individual Monte Carlo realisations'
+        name: '$\\Sigma H(x)$'
     }
     Plotly.addTraces('age_distribution', trace);
 
@@ -717,7 +724,7 @@ function plot_age_distribution(ages,histogram=null) {
                 width: 1
             },
             hoverinfo: 'x',
-            name: 'Product of G functions'
+            name: '$\\Pi G(x)$'
         }
         
         Plotly.addTraces('age_distribution', trace);
