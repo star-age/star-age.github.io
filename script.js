@@ -184,6 +184,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function zoom_in_out(){
+    var ratio = (3-(-1))/(10-(-5));
+    if (layout.xaxis.range[1] == 3){
+        $('#zoom_div').html('<i class="fa-solid fa-search-minus"></i>Zoom-out');
+        if (population.length == 0){
+            layout.xaxis.range = [data[0].x[0]-0.25,data[0].x[0]+0.25];
+            layout.yaxis.range = [data[0].y[0]+0.2/ratio,data[0].y[0]-0.25/ratio];
+        }
+        else{
+            var center_x = population.reduce((prev, curr) => prev + curr['BP-RP'], 0) / population.length;
+            var center_y = population.reduce((prev, curr) => prev + curr['MG'], 0) / population.length;
+            var width_x = Math.max.apply(null, population.map(e => e['BP-RP'])) - Math.min.apply(null, population.map(e => e['BP-RP']));
+            var width_y = Math.max.apply(null, population.map(e => e['MG'])) - Math.min.apply(null, population.map(e => e['MG']));
+            width_x /= 1.75;
+            width_y /= 1.75;
+            console.log(center_x,center_y,width_x,width_y,width_y/ratio);
+            if (width_x > width_y/ratio){
+                layout.xaxis.range = [center_x-width_x,center_x+width_x];
+                layout.yaxis.range = [center_y+width_x/ratio,center_y-width_x/ratio];
+            }
+            else{
+                layout.xaxis.range = [center_x-width_y*ratio,center_x+width_y*ratio];
+                layout.yaxis.range = [center_y+width_y,center_y-width_y];
+            }
+        }
+    }
+    else{
+        $('#zoom_div').html('<i class="fa-solid fa-search-plus"></i>Zoom-in');
+        layout.xaxis.range = [-1,3];
+        layout.yaxis.range = [10,-5];
+    }
+    add_axes();
+    Plotly.relayout('hr_diagram', layout);
+}
+
 function get_closest_moh(){
     var moh_input = document.getElementById('MoH_input');
     var moh = parseFloat(moh_input.value);
@@ -413,6 +448,7 @@ function import_csv() {
                     header: true,
                     dynamicTyping: true,
                     complete: function(results) {
+                        results.data.pop();
                         $('#submit').html('<div class="stars"></div>Estimate ages<div class="stars"></div>');
                         $('#MoH_input').attr('disabled', true);
                         $('#MG_input').attr('disabled', true);
@@ -692,6 +728,11 @@ function make_isochrones_hoverable() {
 }
 
 function add_axes() {
+    var existingAxes = document.getElementById('hr_diagram').data.filter(trace => trace.name == 'axes');
+    if (existingAxes.length > 0) {
+        var indices = document.getElementById('hr_diagram').data.map((trace, i) => trace.name == 'axes' ? i : null).filter(e => e != null);
+        Plotly.deleteTraces('hr_diagram', indices);
+    }
     var x_min = layout.xaxis.range[0];
     var x_max = layout.xaxis.range[1];
     var y_min = layout.yaxis.range[0];
@@ -705,7 +746,9 @@ function add_axes() {
         line: {
             color: 'rgba(0,0,0,0.5)',
             width: 4
-        }
+        },
+        name: 'axes',
+        hoverinfo: 'none',
     }
     Plotly.addTraces('hr_diagram', trace);
 }

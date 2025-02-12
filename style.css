@@ -115,7 +115,7 @@ a{
     z-index: 2;
 }
 
-#import_div {
+#import_div,#help_div,#zoom_div {
     display: inline-block;
     font: 15px RobotoSlab;
     z-index: 1;
@@ -128,33 +128,22 @@ a{
     padding-left:20px;
     padding-right:20px;
     padding-top:10px;
-    padding-bottom:7px;
     width: fit-content;
-    height: 25px;
     cursor: pointer;
     transition: box-shadow .2s;
+    height: 30px;
+}
+
+#import_div{
     margin-left: 15px;
 }
 
-#help_div {
-    display: inline-block;
-    font: 15px RobotoSlab;
-    z-index: 1;
-    background-image: url('background2.png');
-    background-repeat: repeat;
-    background-size: 100px, 100px;
-    box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
-    border: none;
-    color: #ebe8dd;
-    padding-left:20px;
-    padding-right:20px;
-    padding-top:10px;
-    padding-bottom:10px;
-    width: fit-content;
-    height: fit-content;
-    cursor: pointer;
-    transition: box-shadow .2s;
+#help_div{
     margin-left: 20%;
+}
+
+#zoom_div{
+    margin-left: 15px;
 }
 
 #help_div:hover,#import_div:hover{
@@ -247,7 +236,7 @@ a{
     cursor: pointer;
 }
 
-#import_div .fa-file-import, #import_div .fa-file{
+#import_div .fa-file-import, #import_div .fa-file, #zoom_div .fa-search-plus, #zoom_div .fa-search-minus{
     margin-right: 10px;
 }
 
@@ -256,6 +245,7 @@ a{
     margin-right: -10px;
     font-size: 20px;
     transform: translateY(2px);
+    line-height: 0px;
 }
 
 #pdf_div{
