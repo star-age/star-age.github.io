@@ -86,6 +86,7 @@ var n_histograms = 0;
 var population = [];
 var is_population = false;
 var n_pop = 0;
+var current_moh = 0;
 
 function data_space_to_pixel_space(layout,data_size,direction) {
     if (direction == 'x'){
@@ -182,6 +183,17 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle_help();
     });
 });
+
+function get_closest_moh(){
+    var moh_input = document.getElementById('MoH_input');
+    var moh = parseFloat(moh_input.value);
+    
+    var possible_moh_values = [-2, -1, 0];
+    var closest_moh = possible_moh_values.reduce((prev, curr) => 
+        Math.abs(curr - moh) < Math.abs(prev - moh) ? curr : prev
+    );
+    return closest_moh;
+}
 
 function toggle_help(){
     $('#info').fadeToggle();
@@ -293,11 +305,19 @@ async function submit_population() {
         $('label[for="eMG_input"]').attr('disabled', true);
     }
 
+    mean_moh = 0;
+    var stars_non_nan = 0;
+
     for (var i = 0; i < population.length; i++) {
         var star = population[i];
         var MG = star['MG'];
         var BP_RP = star['BP-RP'];
         var MoH = star['[M/H]'];
+
+        if (isNaN(MoH) == false) {
+            mean_moh += MoH;
+            stars_non_nan++;
+        }
 
         if (has_uncertainties) {
             var e_MG = star['eMG'];
@@ -319,6 +339,13 @@ async function submit_population() {
 
         xs.push(BP_RP);
         ys.push(MG);
+    }
+
+    mean_moh = mean_moh / stars_non_nan;
+    $('#MoH_input').val(mean_moh.toFixed(2));
+    if (get_closest_moh(mean_moh) != current_moh){
+        var model = document.getElementById("model").value;
+        plot_isochrones(model);
     }
 
     var flat_ages = [];
@@ -444,21 +471,20 @@ function set_controls() {
     var ranges = [
         {input: "MoH_input"},
         {input: "MG_input"},
-        {input: "BP_RP_input"}
+        {input: "BP_RP_input"},
+        {input: "n_input"}
     ];
 
     ranges.forEach(function(r) {
         var inputElement = document.getElementById(r.input);
         inputElement.oninput = function() {
             submit_star();
+            if (r.input == 'MoH_input'){
+                var model = document.getElementById("model").value;
+                plot_isochrones(model);
+            }
         }
     });
-
-    document.getElementById("n_input").oninput = function() {
-        if (data[0].visible == true) {
-            submit_star();
-        }
-    }
 
     document.getElementById("model").onclick = function() {
         if (data[0].visible == true) {
@@ -477,7 +503,7 @@ function update_errors() {
     draw_gaussian_point(parseFloat(BP_RP), parseFloat(MG), parseFloat(eBP_RP), parseFloat(eMG));
 }
 
-async function submit_star() {
+async function submit_star(clicked=false) {
     var MG = document.getElementById("MG_input").value;
     var MoH = document.getElementById("MoH_input").value;
     var BP_RP = document.getElementById("BP_RP_input").value;
@@ -489,22 +515,27 @@ async function submit_star() {
     var model_name = document.getElementById("model").value;
     var n = document.getElementById("n_input").value;
 
-    if (MoH == "") {
-        document.getElementById("MoH_input").value = '0.0';
-        MoH = 0.0;
-    }
+    if (clicked){
+        if (MoH == "") {
+            document.getElementById("MoH_input").value = '0.0';
+            MoH = 0.0;
+        }
 
-    if (n == "") {
-        n = 10_000;
-        document.getElementById("n_input").value = n;
+        if (n == "") {
+            n = 10_000;
+            document.getElementById("n_input").value = n;
+        }
+    }
+    else{
+        if (isNaN(parseFloat(MG)) || isNaN(parseFloat(MoH)) || isNaN(parseFloat(BP_RP)) || isNaN(parseFloat(eMG)) || isNaN(parseFloat(eMoH)) || isNaN(parseFloat(eBP_RP)) || isNaN(parseInt(n)) ||
+        MoH == '' || MG == '' || BP_RP == '' || eMG == '' || eMoH == '' || eBP_RP == '' || n == ''){
+            document.getElementById("result").innerHTML = '<span>Error parsing inputs, check possible missing values.</span>';
+            return;
+        }
     }
 
     if (is_population == true) {
         submit_population();
-        return;
-    }
-
-    if (MG == "" || BP_RP == "") {
         return;
     }
 
@@ -575,12 +606,18 @@ async function plot_isochrones(model) {
         var MG_max = 0;
         var BP_RP_min = 0;
         var BP_RP_max = 0;
-        if (models_isochrones[model].length == 0) {
+        var moh = get_closest_moh();
+        current_moh = moh;
+        if (model in models_isochrones == false) {
+            models_isochrones[model] = {};
+        }
+        if (moh in models_isochrones[model] == false) {
             var isochrones = await load_isochrones(model);
-            models_isochrones[model] = isochrones;
+            isochrones = isochrones[moh];
+            models_isochrones[model][moh] = isochrones;
         }
         else {
-            var isochrones = models_isochrones[model];
+            var isochrones = models_isochrones[model][moh];
         }
         var traces = [];
         n_traces = isochrones.length;
@@ -625,7 +662,7 @@ async function plot_isochrones(model) {
                     color: 'rgba(82, 140, 92,.25)',
                     width: 1
                 },
-                hovertext: isochrone.age + ' Gyr',
+                hovertext: isochrone.age.toFixed(2) + ' Gyr',
                 hoverinfo: 'text',
                 zorder:1
             }
@@ -725,7 +762,7 @@ function plot_age_distribution(ages,histogram=null) {
             color: 'rgba(235, 232, 221,.75)'
         },
         hoverinfo: 'x',
-        name: '$\\Sigma H(x)$'
+        name: 'Σ H(x)'
     }
     Plotly.addTraces('age_distribution', trace);
 
@@ -751,7 +788,7 @@ function plot_age_distribution(ages,histogram=null) {
                 width: 1
             },
             hoverinfo: 'x',
-            name: '$\\Pi G(x)$'
+            name: 'Π G(x)'
         }
         
         Plotly.addTraces('age_distribution', trace);

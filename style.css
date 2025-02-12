@@ -28,7 +28,7 @@
 
 @font-face {
     font-family: RobotoSlab;
-    src: url('fonts/RobotoSlab-Medium.ttf');
+    src: url('fonts/RobotoSlab-SemiBold.ttf');
     font-weight: bold;
 }
 
@@ -81,7 +81,7 @@ p, i{
     font-size: 15px;
 }
 
-h1,h2,h3,p,i{
+h1,h2,h3,p,i,span{
     cursor: text;
 }
 
@@ -199,17 +199,20 @@ a{
 #info_container a{
     color:#528c5c;
     text-decoration: underline;
+    font-family: RobotoSlab;
     font-weight: bold;
 }
 
 #info_container .important{
     color:#528c5c;
-    font-weight:bolder;
+    font-family: RobotoSlab;
+    font-weight: bold;
 }
 
 #info_container .script{
     font-family: RobotoSlab;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 #info_container p{

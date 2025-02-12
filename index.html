@@ -12,14 +12,6 @@
     <script src="https://kit.fontawesome.com/1c5060d9dc.js" crossorigin="anonymous"></script>
     <script src='https://cdn.plot.ly/plotly-3.0.0.min.js'></script>
     <script src="script.js"></script>
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
-    </script>
-        <script src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'></script>
 </head>
 <body>
     <h1>Stellar age estimator</h1>
@@ -50,7 +42,7 @@
                 Changing any input will automatically trigger the computation of a new age estimate.
             </p>
             <p>
-                For each stellar evolution model, 3 sets of isochrones are used to display in the CMD. Depending on the metallicity chosen, the closest set will be used <span class="important">(to do)</span>.
+                For each stellar evolution model, 3 sets of isochrones are used to display in the CMD at <span class="script">[M/H]</span>=-2,-1 & 0. Depending on the metallicity chosen, the closest set will be used.
             </p>
             <p>
                 The <span class="important">Number of samples</span> input sets the number of Monte Carlo realisations used to compute the age distribution. 1000 is usually good enough to get a smooth distribution.
@@ -144,7 +136,7 @@
                         <label for="n_input">Number of samples :</label>
                         <input type="number" id="n_input" name="n_input" placeholder="(100-10 000)">
                     </form>
-                    <button id="submit" onclick='submit_star()'><div class="stars"></div>Estimate age<div class="stars"></div></button>
+                    <button id="submit" onclick='submit_star(clicked=true)'><div class="stars"></div>Estimate age<div class="stars"></div></button>
                 </div>
             </div>
         </div>
