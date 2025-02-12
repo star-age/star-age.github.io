@@ -257,7 +257,8 @@ function reset_import_button(){
     $('label[for="eMoH_range"]').attr('disabled', false);
     $('label[for="eMG_input"]').attr('disabled', false);
 
-    Plotly.deleteTraces('hr_diagram',-1);
+    var star_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => trace.type == 'star' ? i : null).filter(e => e != null);
+    Plotly.deleteTraces('hr_diagram', star_traces_indices);
     Plotly.redraw('hr_diagram');
     submit_star();
 
@@ -420,6 +421,7 @@ async function submit_population() {
                 size: 7,
                 color: 'rgba(0,0,0,1)'
             },
+            type: 'star',
             hovertext: '',
             hoverinfo: 'none',
             zorder:2,
@@ -628,11 +630,8 @@ function load_isochrones(model) {
 }
 
 function remove_isochrones() {
-    var traces = [];
-    for (var i = 0; i < n_traces; i++) {
-        traces.push(-i-1);
-    }
-    Plotly.deleteTraces('hr_diagram',traces);
+    var isochrone_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => trace.type == 'isochrone' ? i : null).filter(e => e != null);
+    Plotly.deleteTraces('hr_diagram',isochrone_traces_indices);
 }
 
 async function plot_isochrones(model) {
@@ -700,7 +699,8 @@ async function plot_isochrones(model) {
                 },
                 hovertext: isochrone.age.toFixed(2) + ' Gyr',
                 hoverinfo: 'text',
-                zorder:1
+                zorder:1,
+                type: 'isochrone'
             }
             isochrone_curves.push(trace);
             traces.push(trace);
