@@ -222,6 +222,9 @@ function zoom_in_out(){
 function get_closest_moh(){
     var moh_input = document.getElementById('MoH_input');
     var moh = parseFloat(moh_input.value);
+    if (isNaN(moh)){
+        moh = 0;
+    }
     
     var possible_moh_values = [-2, -1, 0];
     var closest_moh = possible_moh_values.reduce((prev, curr) => 
