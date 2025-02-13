@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("model").addEventListener('change', function() {
         var model = document.getElementById("model").value;
         plot_isochrones(model);
-        n_pop = 0;
         submit_star();
     });
 
