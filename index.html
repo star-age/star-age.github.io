@@ -55,6 +55,9 @@
                 The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star (as a line).
             </p>
             <p>
+                Hovering over a specific age bin will higlight stars whose age estimate is within (fully opaque) or close (semi-transparent) to that bin. You can click on a bin to select it and investigate the CMD further without needing to be hovering. A checkbox lets you unselect the bin.
+            </p>
+            <p>
                 The code for this web application, along with the weights and biases of the trained neural networks, can be found <a target="_blank" href="https://github.com/star-age/star-age.github.io"><i class="fa-brands fa-github"></i> here</a>. Feel free to contribute.
             </p>
         </div>
@@ -143,8 +146,9 @@
         </div>
     </div>
     <div id="pdf_div">
-        <div id="result"><span>Click on Estimate age or on the CMD to estimate the age of a star</span></div>
+        <div id="deselect_bin" onclick="deselect_bin()"><i class="fa-regular fa-square-check"></i>Unselect bin</div>
         <div id="age_distribution"></div>
+        <div id="result"><span>Click on Estimate age or on the CMD to estimate the age of a star</span></div>
     </div>
 
 </body>

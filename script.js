@@ -118,6 +118,7 @@ function draw_gaussian_point(x, y, std_x, std_y) {
                 width: 0
             },
             mode: 'markers',
+            type:'star',
             marker: {
                 symbol: 'star',
                 size: 7,
@@ -182,7 +183,127 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('info_bg').addEventListener('click', function() {
         toggle_help();
     });
+
+    document.getElementById('age_distribution').on('plotly_hover', function(data){
+        if (is_population == false){
+            return;
+        }
+        if (data.points[0].data.type === 'histogram') {
+            var age_bin = data.points[0].x;
+            highlight_stars(age_bin);
+        }
+    });
+
+    document.getElementById('age_distribution').on('plotly_unhover', function(data) {
+        if (is_population == false){
+            return;
+        }
+        unhighlight_stars();
+    });
+
+    document.getElementById('age_distribution').on('plotly_click', function(data){
+        if (is_population == false){
+            return;
+        }
+        select_hist(data,1);
+    });
 });
+
+function select_hist(data,opacity){
+    var selected_x = data.points[0].x;
+    var selected_y = data.points[0].y;
+    if (data.points[0].data.type === 'histogram') {
+        var selection_hist = document.getElementById('age_distribution').data.filter(trace => trace.type == 'select_bin');
+        $('#deselect_bin').show();
+        if (selection_hist.length > 0) {
+            selection_hist[0].visible = true;
+            selection_hist[0].x = [selected_x - 0.05, selected_x + 0.05, selected_x + 0.05, selected_x - 0.05, selected_x - 0.05];
+            selection_hist[0].y = [0, 0, selected_y, selected_y, 0];
+        }
+        else{
+            var selection = {
+                x: [selected_x - 0.05, selected_x + 0.05, selected_x + 0.05, selected_x - 0.05, selected_x - 0.05],
+                y: [0, 0, selected_y, selected_y, 0],
+                fill: 'toself',
+                fillcolor: 'rgba(255,255,255,'+opacity+')',
+                line: {
+                    color: 'rgba(0,0,0,1)',
+                    width: 0
+                },
+                mode:'none',
+                visible: true,
+                type: 'select_bin',
+                hoverinfo: 'skip',
+                showlegend: false,
+            };
+            Plotly.addTraces('age_distribution', selection);
+        }
+        Plotly.redraw('age_distribution');
+    }
+}
+
+function deselect_bin() {
+    var selection_hist = document.getElementById('age_distribution').data.filter(trace => trace.type == 'select_bin');
+    if (selection_hist.length > 0) {
+        selection_hist[0].visible = false;
+        Plotly.redraw('age_distribution');
+        unhighlight_stars();
+        $('#deselect_bin').hide();
+    }
+}
+
+function unhighlight_stars() {
+    var selection_hist = document.getElementById('age_distribution').data.filter(trace => trace.type == 'select_bin');
+    if (selection_hist.length == 0 || selection_hist[0].visible == false) {
+        var stars = document.getElementById('hr_diagram').data.filter(trace => trace.type == 'star' && trace.visible == true);
+        if (stars.length == 0) {
+            return;
+        }
+        stars = stars[0];
+        stars.marker.color = Array(stars.x.length).fill('rgba(0,0,0,1)');
+        Plotly.redraw('hr_diagram');
+    }
+    else{
+        var age_bin = selection_hist[0].x[0] + 0.05;
+        highlight_stars(age_bin);
+    }
+}
+
+function highlight_stars(age_bin) {
+    var stars = document.getElementById('hr_diagram').data.filter(trace => trace.type == 'star' && trace.visible == true);
+    if (stars.length == 0) {
+        return
+    }
+    stars = stars[0];
+    var bins = document.getElementById('age_distribution').data.filter(trace => trace.type == 'histogram')[0];
+    var colors = [];
+    var bin_colors = [];
+
+    for (var i = 0; i < bins.x.length; i++) {
+        var bin = bins.x[i];
+        if (age_bin == bin) {
+            bin_colors.push('rgba(235, 232, 221,1)');
+        }
+        else {
+            bin_colors.push('rgba(235, 232, 221,.75)');
+        }
+    }
+    for (var i = 0; i < stars.x.length; i++) {
+        var hovertext = stars.hovertext[i];
+        var age = parseFloat(hovertext.split('±')[0]);
+        var opacity = 0.05;
+        var age_dif = Math.abs(age - age_bin);
+        if (age_dif < 0.1){
+            opacity = 1;
+        }
+        else if (age_dif < 1){
+            opacity = .95 - age_dif + 0.05;
+        }
+        colors.push('rgba(0,0,0,' + opacity + ')');
+    }
+    stars.marker.color = colors;
+    Plotly.redraw('hr_diagram');
+}
 
 function zoom_in_out(){
     var ratio = (3-(-1))/(10-(-5));
@@ -199,7 +320,6 @@ function zoom_in_out(){
             var width_y = Math.max.apply(null, population.map(e => e['MG'])) - Math.min.apply(null, population.map(e => e['MG']));
             width_x /= 1.75;
             width_y /= 1.75;
-            console.log(center_x,center_y,width_x,width_y,width_y/ratio);
             if (width_x > width_y/ratio){
                 layout.xaxis.range = [center_x-width_x,center_x+width_x];
                 layout.yaxis.range = [center_y+width_x/ratio,center_y-width_x/ratio];
@@ -240,7 +360,6 @@ function toggle_help(){
 function reset_import_button(){
     is_population = false;
     population = [];
-    data[0].visible = true;
     n_pop = 0;
 
     $('#submit').html('<div class="stars"></div>Estimate age<div class="stars"></div>');
@@ -260,8 +379,12 @@ function reset_import_button(){
     $('label[for="eMoH_range"]').attr('disabled', false);
     $('label[for="eMG_input"]').attr('disabled', false);
 
-    var star_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => trace.type == 'star' ? i : null).filter(e => e != null);
+    var star_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => (trace.type == 'star' && trace.visible == true) ? i : null).filter(e => e != null);
+    console.log(document.getElementById('hr_diagram').data);
+    console.log(star_traces_indices);
     Plotly.deleteTraces('hr_diagram', star_traces_indices);
+    data[0].visible = true;
+    $('#deselect_bin').hide();
     Plotly.redraw('hr_diagram');
     submit_star();
 
@@ -387,9 +510,18 @@ async function submit_population() {
         plot_isochrones(model);
     }
 
+    var hover_texts = [];
+    var colors = [];
+
     var flat_ages = [];
     var histograms = [];
     for (var i = 0; i < all_ages.length; i++) {
+        var median_age = all_ages[i].sort((a, b) => a - b)[Math.floor(all_ages[i].length / 2)];
+        var std_age = Math.sqrt(all_ages[i].reduce((sum, a) => sum + Math.pow(a - median_age, 2), 0) / all_ages[i].length);
+        var hover_text = median_age.toFixed(2) + '±' + std_age.toFixed(2) + ' Gyr';
+        hover_texts.push(hover_text);
+        colors.push('rgba(0,0,0,1)');
+
         for (var j = 0; j < all_ages[i].length; j++) {
             if (!isNaN(all_ages[i][j])) {
                 flat_ages.push(all_ages[i][j]);
@@ -422,10 +554,10 @@ async function submit_population() {
             marker: {
                 symbol: 'star',
                 size: 7,
-                color: 'rgba(0,0,0,1)'
+                color: colors
             },
             type: 'star',
-            hovertext: '',
+            hovertext: hover_texts,
             hoverinfo: 'none',
             zorder:2,
             visible: true
@@ -789,6 +921,7 @@ function plot_age_distribution(ages,histogram=null) {
         var traces = document.getElementById('age_distribution').data.length;
         Plotly.deleteTraces('age_distribution', Array.from(Array(traces).keys()));
     }
+    var falses = Array(140).fill(false);
     var trace = {
         x: ages,
         type: 'histogram',
@@ -803,6 +936,7 @@ function plot_age_distribution(ages,histogram=null) {
             start: 0,
             end: 14
         },
+        selected:falses,
         autobiny: false,
         marker: {
             color: 'rgba(235, 232, 221,.75)'
@@ -833,7 +967,7 @@ function plot_age_distribution(ages,histogram=null) {
                 color: 'rgba(255, 255, 255,1)',
                 width: 1
             },
-            hoverinfo: 'x',
+            hoverinfo: 'skip',
             name: 'Π G(x)'
         }
         

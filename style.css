@@ -232,7 +232,7 @@ a{
     margin-right: 5px;
 }
 
-#help_div i, #import_div i{
+#help_div i, #import_div i, #zoom_div i{
     cursor: pointer;
 }
 
@@ -256,9 +256,27 @@ a{
     box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
     border: none;
     color: #ebe8dd;
-    padding-top:20px;
+    padding-top:10px;
+    padding-bottom: 0px;
     margin-bottom: 50px;
     width: 48%;
+}
+
+#deselect_bin{
+    display: none;
+    position: absolute;
+    left:100px;
+    top:25px;
+    cursor: pointer;
+    z-index: 100;
+    font-family: RobotoSlab;
+    color:white;
+    text-decoration: underline;
+}
+
+#deselect_bin i{
+    margin-right: 5px;
+    cursor: pointer;
 }
 
 #result {
@@ -277,6 +295,7 @@ a{
     font-family: RobotoSlab;
     margin-left:20px;
     margin-right: 20px;
+    height:40px;
 }
 
 #result .underscore{
