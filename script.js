@@ -448,6 +448,7 @@ function get_max_occurence(ages) {
 
 async function submit_population() {
     $('body').addClass('waiting');
+    $('#loading_div').css('top','0px');
 
     var xs = [];
     var ys = [];
@@ -568,6 +569,7 @@ async function submit_population() {
     display_age(flat_ages);
 
     $('body').removeClass('waiting');
+    $('#loading_div').css('top','-100px');
 }
 
 function import_csv() {
@@ -712,10 +714,12 @@ async function submit_star(clicked=false) {
     }
 
     $('body').addClass('waiting');
+    $('#loading_div').css('top','0px');
 
     var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
 
     $('body').removeClass('waiting');
+    $('#loading_div').css('top','-100px');
 
     display_age(ages);
     data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
