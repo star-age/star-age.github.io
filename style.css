@@ -50,7 +50,8 @@ body{
 
 body.waiting,
 body.waiting *,
-body.waiting #hr_diagram,body.waiting #hr_diagram *
+body.waiting #hr_diagram,body.waiting #hr_diagram *,
+body.waiting #age_distribution,body.waiting #age_distribution *
 {
     cursor: wait !important;
 }
