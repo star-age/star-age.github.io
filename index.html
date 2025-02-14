@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="src/favicon.ico" type="image/x-icon">
     <meta name='theme-color' content='#ebe8dd'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1">
     <title>Stellar age estimator</title>
@@ -65,9 +65,12 @@
         </div>
     </div>
     <div id="container">
-        <div id="help_div" onclick="toggle_help()"><i class="fa-solid fa-circle-question"></i> Help</div>
-        <div id="import_div"><i class="fa-solid fa-file-import"></i>Import csv file</div>
-        <div id="zoom_div" onclick="zoom_in_out()"><i class="fa-solid fa-search-plus"></i>Zoom-in</div>
+        <div class="header_button" id="help_div" onclick="toggle_help()"><i class="fa-solid fa-circle-question"></i> Help</div>
+        <div class="header_button" id="import_div"><i class="fa-solid fa-file-import"></i>Import csv file</div>
+        <div class="header_button" id="zoom_div" onclick="zoom_in_out()"><i class="fa-solid fa-search-plus"></i>Zoom-in</div>
+        <a href="https://github.com/star-age/star-age.github.io" target="_blank">
+            <div class="header_button" id="github_div" ><i class="fa-brands fa-github"></i>Source code</div>
+        </a>
         <div id="main_div">
             <div id="big_div">
                 <div id="hr_diagram"></div>

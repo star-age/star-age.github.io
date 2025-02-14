@@ -41,7 +41,7 @@ body{
     background-color: #ebe8dd;
     color: #2f302f;
     font-family: Nunito;
-    background-image: url('background.png');
+    background-image: url('src/background.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
     margin:0;
@@ -74,7 +74,7 @@ h2{
     text-align: left;
     font-size: 1.25em;
     margin: 0 auto;
-    margin-bottom: 75px;
+    margin-bottom: 25px;
     margin-left: 20%;
 }
 
@@ -98,7 +98,7 @@ a{
     left:calc(50% - 125px);
     width:250px;
     height:30px;
-    background-image: url('background2.png');
+    background-image: url('src/background2.png');
     color:#ebe8dd;
     font-family: RobotoSlab;
     font-weight: bold;
@@ -134,11 +134,11 @@ a{
     z-index: 2;
 }
 
-#import_div,#help_div,#zoom_div {
+.header_button {
     display: inline-block;
     font: 15px RobotoSlab;
     z-index: 1;
-    background-image: url('background2.png');
+    background-image: url('src/background2.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
     box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
@@ -153,7 +153,7 @@ a{
     height: 30px;
 }
 
-#import_div{
+.header_button{
     margin-left: 15px;
 }
 
@@ -161,11 +161,7 @@ a{
     margin-left: 20%;
 }
 
-#zoom_div{
-    margin-left: 15px;
-}
-
-#help_div:hover,#import_div:hover{
+.header_button:hover{
     box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
@@ -184,7 +180,7 @@ a{
 
 #info_bg{
     position: fixed;
-    background-image: url('background.png');
+    background-image: url('src/background.png');
     opacity: 0.25;
     filter:brightness(0.25);
     width:100%;
@@ -194,7 +190,7 @@ a{
 #info_container {
     width:50%;
     height:fit-content;
-    background-image: url('background.png');
+    background-image: url('src/background.png');
     border: 1px solid #2f302f;
     opacity: 1;
     filter:brightness(1);
@@ -238,7 +234,7 @@ a{
     height:33px;
     padding-top: 7px;
     color:#ebe8dd;
-    background-image: url('background2.png');
+    background-image: url('src/background2.png');
     box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
     transition: box-shadow .2s;
 }
@@ -247,15 +243,8 @@ a{
     box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
-#help_div i{
-    margin-right: 5px;
-}
-
-#help_div i, #import_div i, #zoom_div i{
+.header_button i{
     cursor: pointer;
-}
-
-#import_div .fa-file-import, #import_div .fa-file, #zoom_div .fa-search-plus, #zoom_div .fa-search-minus{
     margin-right: 10px;
 }
 
@@ -269,7 +258,7 @@ a{
 
 #pdf_div{
     z-index: 1;
-    background-image: url('background2.png');
+    background-image: url('src/background2.png');
     background-repeat: repeat;
     background-size: 100px, 100px;
     box-shadow: 0px 10px 20px 5px rgba(69, 110, 76, 0.5);
@@ -420,7 +409,7 @@ button:hover{
     margin-right: 10px;
     margin-left: 10px;
     transform: translateY(4px);
-    background-image: url('stars.svg');
+    background-image: url('src/stars.svg');
 }
 
 .stars:nth-of-type(2) {

@@ -379,8 +379,6 @@ function reset_import_button(){
     $('label[for="eMG_input"]').attr('disabled', false);
 
     var star_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => (trace.type == 'star' && trace.visible == true) ? i : null).filter(e => e != null);
-    console.log(document.getElementById('hr_diagram').data);
-    console.log(star_traces_indices);
     Plotly.deleteTraces('hr_diagram', star_traces_indices);
     data[0].visible = true;
     $('#deselect_bin').hide();
