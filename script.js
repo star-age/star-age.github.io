@@ -393,7 +393,7 @@ function populate_cmd(stars) {
     data[0].visible = false;
 
     population = stars;
-    submit_population();
+    submit_star();
 }
 
 function compute_histogram(ages,normalised='None') {
@@ -447,6 +447,7 @@ function get_max_occurence(ages) {
 async function submit_population() {
     $('body').addClass('waiting');
     $('#loading_div').css('top','0px');
+    $('#loading_bar').css('width','0%');
 
     var xs = [];
     var ys = [];
@@ -499,6 +500,8 @@ async function submit_population() {
 
         xs.push(BP_RP);
         ys.push(MG);
+        $('#loading_div').html('Computing age of star ' + (i+1) + '/' + population.length + '... (' + Math.round((i+1)/population.length*100) + '%)');
+        $('#loading_bar').css('width',Math.round((i+1)/population.length*100) + '%');
     }
 
     mean_moh = mean_moh / stars_non_nan;
@@ -568,6 +571,7 @@ async function submit_population() {
 
     $('body').removeClass('waiting');
     $('#loading_div').css('top','-100px');
+    $('#loading_bar').css('width','0%');
 }
 
 function import_csv() {
@@ -693,15 +697,16 @@ async function submit_star(clicked=false) {
             MoH = 0.0;
         }
 
-        if (n == "") {
+        if (n == "" || parseFloat(n) == 0) {
             n = 10_000;
             document.getElementById("n_input").value = n;
         }
     }
     else{
         if (isNaN(parseFloat(MG)) || isNaN(parseFloat(MoH)) || isNaN(parseFloat(BP_RP)) || isNaN(parseFloat(eMG)) || isNaN(parseFloat(eMoH)) || isNaN(parseFloat(eBP_RP)) || isNaN(parseInt(n)) ||
-        MoH == '' || MG == '' || BP_RP == '' || eMG == '' || eMoH == '' || eBP_RP == '' || n == ''){
-            document.getElementById("result").innerHTML = '<span>Error parsing inputs, check possible missing values.</span>';
+        MoH == '' || MG == '' || BP_RP == '' || eMG == '' || eMoH == '' || eBP_RP == '' || n == '' || parseFloat(n) == 0){
+            $('#loading_div').css('top','0px');
+            $("#loading_div").html('Error parsing inputs, check possible missing values.');
             return;
         }
     }
@@ -713,11 +718,13 @@ async function submit_star(clicked=false) {
 
     $('body').addClass('waiting');
     $('#loading_div').css('top','0px');
+    $('#loading_div').html('Computing estimation...');
 
     var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
 
     $('body').removeClass('waiting');
     $('#loading_div').css('top','-100px');
+    $('#loading_bar').css('width','0%');
 
     display_age(ages);
     data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
