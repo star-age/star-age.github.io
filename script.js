@@ -5,7 +5,7 @@ var layout = {
     height: 650,
     xaxis: {
         gridcolor: 'rgba(0.5,0.5,0.5,.5)',
-        title: {text: 'BP-RP'},
+        title: {text: '(BP-RP)'},
         linewidth:0,
         range: [-1,3],
         zeroline: false,
@@ -87,6 +87,7 @@ var population = [];
 var is_population = false;
 var n_pop = 0;
 var current_moh = 0;
+var csv_data = null;
 
 function data_space_to_pixel_space(layout,data_size,direction) {
     if (direction == 'x'){
@@ -386,6 +387,7 @@ function reset_import_button(){
     submit_star();
 
     $('#import_div').html('<i class="fa-solid fa-file-import"></i>Import csv file');
+    $('#export_div').remove();
 }
 
 function populate_cmd(stars) {
@@ -494,7 +496,12 @@ async function submit_population() {
         var model_name = document.getElementById("model").value;
         var n = document.getElementById("n_input").value;
 
-        var [ages,_age,_age_std] = await estimate_age(model_name, MG, MoH, BP_RP, e_MG, e_MoH, e_BP_RP, n);
+        var [ages,_median_age,_mean_age,_mode_age,_age_std] = await estimate_age(model_name, MG, MoH, BP_RP, e_MG, e_MoH, e_BP_RP, n);
+
+        population[i]['age_median'] = _median_age;
+        population[i]['age_mean'] = _mean_age;
+        population[i]['age_mode'] = _mode_age;
+        population[i]['age_std'] = _age_std;
         
         all_ages.push(ages);
 
@@ -503,6 +510,8 @@ async function submit_population() {
         $('#loading_div').html('Computing age of star ' + (i+1) + '/' + population.length + '... (' + Math.round((i+1)/population.length*100) + '%)');
         $('#loading_bar').css('width',Math.round((i+1)/population.length*100) + '%');
     }
+
+    csv_data = population;
 
     mean_moh = mean_moh / stars_non_nan;
     $('#MoH_input').val(mean_moh.toFixed(2));
@@ -600,9 +609,10 @@ function import_csv() {
                         $('#import_div').empty();
                         $('#import_div').append('<i class="fa-solid fa-file"></i>' + file.name);
                         $('#import_div').append(close);
+                        $('#import_div').after('<div class="header_button" id="export_div" onclick="export_csv()"><i class="fa-solid fa-file-export"></i>Export csv</div>');
                         close.click(function(ev) {
                             ev.stopPropagation();
-                           reset_import_button();
+                            reset_import_button();
                         });
                         populate_cmd(results.data);
                     }
@@ -612,6 +622,16 @@ function import_csv() {
         }
     };
     input.click();
+}
+
+function export_csv() {
+    var csv = Papa.unparse(csv_data);
+    var blob = new Blob([csv], {type: 'text/csv'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = $('#import_div').text().replace(/\s/g, '_').replace('.csv', '_ages.csv');
+    a.click();
 }
 
 function update_inputs(x, y) {
@@ -915,9 +935,11 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
         var age = 0;
         ages.sort((a, b) => a - b);
         var mid = Math.floor(ages.length / 2);
-        age = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
+        median_age = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
+        mean_age = ages.reduce((a,b) => a + b, 0) / ages.length;
+        mode_age = get_max_occurence(ages)[0] / 10;
         age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / ages.length);
-        return [ages, age, age_std];
+        return [ages, median_age, mean_age, mode_age, age_std];
     } catch (error) {
         console.log(error);
     }

@@ -124,11 +124,12 @@ a{
 
 #container {
     margin:0 auto;
+    width: fit-content;
 }
 
-#main_div, #pdf_div {
+#main_div, #pdf_div{
     border: 1px solid #2f302f;
-    box-shadow: 0px 20px 40px 10px rgba(69, 110, 76, 0.35);
+    box-shadow: 0px 10px 20px 0px rgba(69, 110, 76, 0.25);
     width: fit-content;
     background-color: #ebe8dd;
     margin: 0 auto;
@@ -136,6 +137,11 @@ a{
     padding:25px;
     padding-top: 0px;
     position: relative;
+    transition: box-shadow .5s;
+}
+
+#container:hover #main_div{
+    box-shadow: 0px 20px 40px 10px rgba(69, 110, 76, 0.35);
 }
 
 #pdf_div{
@@ -160,21 +166,17 @@ a{
     padding-left:20px;
     padding-right:20px;
     padding-top:10px;
-    width: fit-content;
+    padding-bottom: 10px;
+    max-width: fit-content;
     cursor: pointer;
-    transition: box-shadow .2s;
+    transition: box-shadow .2s, transform .2s, max-width .2s;
     height: 30px;
-}
-
-.header_button{
     margin-left: 15px;
-}
-
-#help_div{
-    margin-left: 20%;
+    transform: translateY(10px);
 }
 
 .header_button:hover{
+    transform: translateY(3px);
     box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
@@ -194,8 +196,8 @@ a{
 #info_bg{
     position: fixed;
     background-image: url('src/background.png');
-    opacity: 0.25;
-    filter:brightness(0.25);
+    opacity: 0.5;
+    filter:brightness(1);
     width:100%;
     height: 100%;
 }
