@@ -26,6 +26,7 @@
             <p>
                 This web application provides estimates of the age of a star/star population using neural networks trained on stellar evolution models.
             </p>
+            <h3>How it works</h3>
             <p>
                 The neural networks were trained on the
                 <a target="_blank" href="http://basti-iac.oa-abruzzo.inaf.it/">BaSTI</a>,
@@ -40,6 +41,7 @@
                 They take as input the <span class="script">[M/H]</span>, <span class="script">σ([M/H])</span>, <span class="script">MG</span>, <span class="script">σ(MG)</span>, <span class="script">BP-RP</span> & <span class="script">σ(BP-RP)</span> of a star and return the age of the star and its distribution.
                 The age estimate is given in terms of the mean, median and mode of the distribution, while the age uncertainty given is computed as the standard deviation in the age distribution.
             </p>
+            <h3>How to use it</h3>
             <p>
                 You can click anywhere on the Color-Magnitude Diagram to set the <span class="script">MG</span> & <span class="script">BP-RP</span> of a star. You can also directly input its value using the input tags on the right.
                 Changing any input will automatically trigger the computation of a new age estimate.
@@ -55,11 +57,15 @@
                 For the uncertainties, you can either have additional columns named <span class="script">e[M/H]</span>, <span class="script">eMG</span> & <span class="script">eBP-RP</span> or directly input global uncertainties in the <span class="script">σ([M/H])</span>, <span class="script">σ(MG)</span> & <span class="script">σ(BP-RP)</span> inputs.
             </p>
             <p>
+                Once you imported a stellar population and its age has been estimated, you can export the results as a csv using the <span class="important">Export csv file</span> button. The csv file contains the original quantities for each star, with the median, mode, mean and standard deviation of the individual age distributions added.
+            </p>
+            <p>
                 The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star (as a line).
             </p>
             <p>
                 Hovering over a specific age bin will higlight stars whose age estimate is within (fully opaque) or close (semi-transparent) to that bin. You can click on a bin to select it and investigate the CMD further without needing to be hovering. A checkbox lets you unselect the bin.
             </p>
+            <h3>More info</h3>
             <p>
                 The code for this web application, along with the weights and biases of the trained neural networks, can be found <a target="_blank" href="https://github.com/star-age/star-age.github.io"><i class="fa-brands fa-github"></i> here</a>. Feel free to contribute.
             </p>

@@ -387,6 +387,7 @@ function reset_import_button(){
     submit_star();
 
     $('#import_div').html('<i class="fa-solid fa-file-import"></i>Import csv file');
+    $('#import_div').attr('file_loaded',false);
     $('#export_div').remove();
 }
 
@@ -608,8 +609,9 @@ function import_csv() {
                         var close = $('<i>').addClass('fa-solid fa-xmark');
                         $('#import_div').empty();
                         $('#import_div').append('<i class="fa-solid fa-file"></i>' + file.name);
+                        $('#import_div').attr('file_loaded',true);
                         $('#import_div').append(close);
-                        $('#import_div').after('<div class="header_button" id="export_div" onclick="export_csv()"><i class="fa-solid fa-file-export"></i>Export csv</div>');
+                        $('#import_div').after('<div class="header_button" id="export_div" onclick="export_csv()"><i class="fa-solid fa-file-export"></i>Export csv file</div>');
                         close.click(function(ev) {
                             ev.stopPropagation();
                             reset_import_button();
@@ -740,14 +742,14 @@ async function submit_star(clicked=false) {
     $('#loading_div').css('top','0px');
     $('#loading_div').html('Computing estimation...');
 
-    var [ages,age,age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
+    var [ages, median_age, mean_age, mode_age, age_std] = await estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n);
 
     $('body').removeClass('waiting');
     $('#loading_div').css('top','-100px');
     $('#loading_bar').css('width','0%');
 
     display_age(ages);
-    data[0].hovertext = age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
+    data[0].hovertext = mode_age.toFixed(2) + '±' + age_std.toFixed(2) + ' Gyr';
     data[0].hoverinfo = 'text';
     Plotly.redraw('hr_diagram');
     plot_age_distribution(ages);
@@ -759,7 +761,7 @@ function display_age(ages){
     var mid = Math.floor(ages.length / 2);
     var median = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
     var mean = ages.reduce((a,b) => a + b, 0) / ages.length;
-    var mode = get_max_occurence(ages)[0] / 10;
+    var mode = get_max_occurence(ages)[0] / 10 + 0.05;
     var age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - mean, 2), 0) / ages.length);
 
     document.getElementById("result").innerHTML = 
@@ -937,8 +939,8 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
         var mid = Math.floor(ages.length / 2);
         median_age = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
         mean_age = ages.reduce((a,b) => a + b, 0) / ages.length;
-        mode_age = get_max_occurence(ages)[0] / 10;
-        age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - age, 2), 0) / ages.length);
+        mode_age = get_max_occurence(ages)[0] / 10 + 0.05;
+        age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - mean_age, 2), 0) / ages.length);
         return [ages, median_age, mean_age, mode_age, age_std];
     } catch (error) {
         console.log(error);

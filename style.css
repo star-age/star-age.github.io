@@ -180,6 +180,10 @@ a{
     box-shadow: 0px 12px 20px 5px rgba(69, 110, 76, 0.6);
 }
 
+.header_button[file_loaded=true]{
+    transform: translateY(3px);
+}
+
 #info{
     display:none;
     position: absolute;
@@ -191,6 +195,18 @@ a{
     z-index: 50;
     justify-content: center;
     text-align: center;
+}
+
+#info h3{
+    text-align: left;
+    font-family: RobotoSlab;
+    margin-bottom: 0px;
+    font-size: 20px;
+    text-decoration: underline;
+}
+
+#info h3 + p{
+    margin-top: 0px;
 }
 
 #info_bg{
@@ -240,7 +256,7 @@ a{
 }
 
 #info_close{
-    margin-top: 250px;
+    margin-top: 100px;
     cursor: pointer;
     font-size: 25px;
     position: relative;
@@ -282,6 +298,8 @@ a{
     padding-top:10px;
     padding-bottom: 0px;
     margin-bottom: 50px;
+    padding-left: 0px;
+    padding-right: 0px;
     width: 48%;
 }
 
