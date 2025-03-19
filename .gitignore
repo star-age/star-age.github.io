@@ -1,4 +1,6 @@
 *.ai
 *.ipynb
+*.py
 *.DS_Store
 *.csv
+*.pyc

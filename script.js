@@ -713,6 +713,12 @@ async function submit_star(clicked=false) {
     var model_name = document.getElementById("model").value;
     var n = document.getElementById("n_input").value;
 
+
+    if (is_population == true) {
+        submit_population();
+        return;
+    }
+
     if (clicked){
         if (MoH == "") {
             document.getElementById("MoH_input").value = '0.0';
@@ -731,11 +737,6 @@ async function submit_star(clicked=false) {
             $("#loading_div").html('Error parsing inputs, check possible missing values.');
             return;
         }
-    }
-
-    if (is_population == true) {
-        submit_population();
-        return;
     }
 
     $('body').addClass('waiting');
