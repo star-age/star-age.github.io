@@ -484,9 +484,9 @@ async function submit_population() {
         }
 
         if (has_uncertainties) {
-            var e_MG = star['σ(MG)'];
-            var e_BP_RP = star['σ(BP-RP)'];
-            var e_MoH = star['σ([M/H])'];
+            var e_MG = star['e(MG)'];
+            var e_BP_RP = star['e(BP-RP)'];
+            var e_MoH = star['e([M/H])'];
         }
         else{
             var e_MG = document.getElementById("eMG_input").value;
