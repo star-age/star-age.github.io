@@ -456,7 +456,7 @@ async function submit_population() {
     var ys = [];
     var all_ages = [];
     var has_uncertainties = false;
-    if (population[0]['eMG'] != null){
+    if (population[0]['e(MG)'] != null){
         has_uncertainties = true;
         $('#eMoH_input').attr('disabled', true);
         $('#eMoH_range').attr('disabled', true);
