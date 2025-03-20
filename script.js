@@ -484,9 +484,9 @@ async function submit_population() {
         }
 
         if (has_uncertainties) {
-            var e_MG = star['eMG'];
-            var e_BP_RP = star['eBP-RP'];
-            var e_MoH = star['e[M/H]'];
+            var e_MG = star['σ(MG)'];
+            var e_BP_RP = star['σ(BP-RP)'];
+            var e_MoH = star['σ([M/H])'];
         }
         else{
             var e_MG = document.getElementById("eMG_input").value;
@@ -576,8 +576,7 @@ async function submit_population() {
         Plotly.addTraces('hr_diagram', points);
         n_pop = xs.length;
     }
-
-    display_age(flat_ages);
+    display_age(flat_ages,final_histogram);
 
     $('body').removeClass('waiting');
     $('#loading_div').css('top','-100px');
@@ -757,7 +756,7 @@ async function submit_star(clicked=false) {
     update_errors();
 }
 
-function display_age(ages){
+function display_age(ages,G_function=null){
     ages.sort((a, b) => a - b);
     var mid = Math.floor(ages.length / 2);
     var median = ages.length % 2 !== 0 ? ages[mid] : (ages[mid - 1] + ages[mid]) / 2;
@@ -766,9 +765,36 @@ function display_age(ages){
     var age_std = Math.sqrt(ages.reduce((sum, a) => sum + Math.pow(a - mean, 2), 0) / ages.length);
 
     document.getElementById("result").innerHTML = 
-    '<span>t<p class="underscore">mean</p> = ' + mean.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
-    '<span>t<p class="underscore">median</p> = ' + median.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
-    '<span>t<p class="underscore">mode</p> = ' + mode.toFixed(2) + ' ± ' + age_std.toFixed(2) + ' Gyr</span>';
+    '<span>t<p class="underscore">mean,H(x)</p> = ' + mean.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+    '<span>t<p class="underscore">median,H(x)</p> = ' + median.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+    '<span>t<p class="underscore">mode,H(x)</p> = ' + mode.toFixed(2) + ' ± ' + age_std.toFixed(2) + ' Gyr</span>';
+
+    if (G_function != null){
+        var age_bins = [];
+        for (var i = 0; i < G_function.length; i++) {
+            var age = i / 10;
+            age_bins.push(age);
+        }
+        var max_occurence = Math.max(...G_function);
+        var mode = age_bins[G_function.indexOf(max_occurence)] + 0.05;
+        var sum_G_function = G_function.reduce((a, b) => a + b, 0);
+        var mean = age_bins.reduce((sum, a, i) => sum + a * G_function[i], 0) / sum_G_function;
+        var median = 0;
+        var cumulative = 0;
+        for (var i = 0; i < G_function.length; i++) {
+            cumulative += G_function[i];
+            if (cumulative >= 0.5*sum_G_function){
+                median = age_bins[i];
+                break;
+            }
+        }
+        var age_std = Math.sqrt(age_bins.reduce((sum, a, i) => sum + Math.pow(a - mean, 2) * G_function[i], 0) / sum_G_function);
+
+        document.getElementById("result").innerHTML += '<br/>' +
+        '<span>t<p class="underscore">mean,G(x)</p> = ' + mean.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+        '<span>t<p class="underscore">median,G(x)</p> = ' + median.toFixed(2) +  ' ± ' + age_std.toFixed(2) + ' Gyr</span>' +
+        '<span>t<p class="underscore">mode,G(x)</p> = ' + mode.toFixed(2) + ' ± ' + age_std.toFixed(2) + ' Gyr</span>';
+    }
 }
 
 function load_model(model_name) {
