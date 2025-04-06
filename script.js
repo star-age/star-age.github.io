@@ -55,6 +55,7 @@ var histogram_layout = {
         fixedrange: true,
         showticklabels: false
     },
+    barmode: 'overlay',
     showlegend: true,
     legend: {
         font:{
@@ -184,11 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle_help();
     });
 
-    document.getElementById('age_distribution').on('plotly_hover', function(data){
-        if (is_population == false){
+    document.getElementById('age_distribution').on('plotly_hover', function(data) {
+        if (is_population == false) {
             return;
         }
-        if (data.points[0].data.type === 'histogram') {
+        if (data.points[0].data.name === 'Hover Helper') { // Link hover to the invisible histogram
             var age_bin = data.points[0].x;
             highlight_stars(age_bin);
         }
@@ -377,6 +378,7 @@ function reset_import_button(){
     $('#eBP_RP_range').attr('disabled', false);
     $('label[for="eMoH_input"]').attr('disabled', false);
     $('label[for="eMoH_range"]').attr('disabled', false);
+    $('label[for="eBP_RP_input"]').attr('disabled', false);
     $('label[for="eMG_input"]').attr('disabled', false);
 
     var star_traces_indices = document.getElementById('hr_diagram').data.map((trace, i) => (trace.type == 'star' && trace.visible == true) ? i : null).filter(e => e != null);
@@ -466,6 +468,7 @@ async function submit_population() {
         $('#eBP_RP_range').attr('disabled', true);
         $('label[for="eMoH_input"]').attr('disabled', true);
         $('label[for="eMoH_range"]').attr('disabled', true);
+        $('label[for="eBP_RP_input"]').attr('disabled', true);
         $('label[for="eMG_input"]').attr('disabled', true);
     }
 
@@ -975,12 +978,15 @@ async function estimate_age(model_name, MG, MoH, BP_RP, eMG, eMoH, eBP_RP, n) {
     
 }
 
-function plot_age_distribution(ages,histogram=null) {
+function plot_age_distribution(ages, histogram = null) {
     if (n_histograms > 0) {
         var traces = document.getElementById('age_distribution').data.length;
         Plotly.deleteTraces('age_distribution', Array.from(Array(traces).keys()));
     }
+
     var falses = Array(140).fill(false);
+
+    // Visible histogram trace
     var trace = {
         x: ages,
         type: 'histogram',
@@ -990,30 +996,51 @@ function plot_age_distribution(ages,histogram=null) {
             end: 14
         },
         autobinx: false,
-        ybins: {
-            size: 0.1,
-            start: 0,
-            end: 14
-        },
-        selected:falses,
-        autobiny: false,
         marker: {
             color: 'rgba(235, 232, 221,.75)'
+            //color: 'rgba(0,0,0,0)'
         },
-        hoverinfo: 'x',
+        hoverinfo: 'skip',
         name: 'Σ H(x)'
-    }
+    };
     Plotly.addTraces('age_distribution', trace);
 
     var max_value = get_max_occurence(ages)[1];
 
+    var fake_ages = [];
+    for (var i = 0; i < 140; i++) {
+        for (var j = 0; j < max_value; j++) {
+            fake_ages.push(i/10);
+        }
+    }
+
+    // Invisible histogram trace for hover behavior
+    var invisible_trace = {
+        x: fake_ages,
+        type: 'histogram',
+        xbins: {
+            size: 0.1,
+            start: 0,
+            end: 14
+        },
+        autobinx: false,
+        selected: falses,
+        marker: {
+            color: 'rgba(82, 140, 92,0)' // Fully transparent
+        },
+        hoverinfo: 'x', // Enable hover for this trace
+        name: 'Hover Helper',
+        showlegend: false, // Hide from legend
+    };
+    Plotly.addTraces('age_distribution', invisible_trace);
+
     if (histogram != null) {
         var ys = [];
         var hist_max = Math.max(...histogram);
-        
+
         for (var i = 0; i < histogram.length; i++) {
-            ys.push(i/10);
-            histogram[i] = histogram[i]/hist_max*max_value;
+            ys.push(i / 10);
+            histogram[i] = histogram[i] / hist_max * max_value;
         }
 
         var min_value = Math.min(...histogram);
@@ -1028,20 +1055,20 @@ function plot_age_distribution(ages,histogram=null) {
             },
             hoverinfo: 'skip',
             name: 'Π G(x)'
-        }
-        
+        };
+
         Plotly.addTraces('age_distribution', trace);
         Plotly.relayout('age_distribution', {
             showlegend: true,
             'yaxis.range': [min_value, max_value]
         });
-    }
-    else{
+    } else {
         Plotly.relayout('age_distribution', {
             showlegend: false,
             'yaxis.range': [0, max_value]
         });
     }
+
     n_histograms = 1;
 }
 
