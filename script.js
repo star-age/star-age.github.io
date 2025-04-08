@@ -127,7 +127,7 @@ function draw_gaussian_point(x, y, std_x, std_y) {
                 color: 'rgba(0,0,0,1)'
             },
             hovertext: '',
-            hoverinfo: 'none',
+            hoverinfo: 'skip',
             zorder:2,
             visible: false
         };
