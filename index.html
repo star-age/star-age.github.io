@@ -47,7 +47,7 @@
                 Changing any input will automatically trigger the computation of a new age estimate.
             </p>
             <p>
-                For each stellar evolution model, 3 sets of isochrones are used to display in the CMD at <span class="script">[M/H]</span>=-2,-1 & 0. Depending on the metallicity chosen, the closest set will be used.
+                For each stellar evolution model, 3 sets of isochrones are used to display in the CMD at <span class="script">[M/H]</span>=-2.0,-1.0 & 0.0 dex. Depending on the metallicity chosen, the closest set will be used.
             </p>
             <p>
                 The <span class="important">Number of samples</span> input sets the number of Monte Carlo realisations used to compute the age distribution. 1000 is usually good enough to get a smooth distribution.
@@ -60,7 +60,7 @@
                 Once you imported a stellar population and its age has been estimated, you can export the results as a csv using the <span class="important">Export csv file</span> button. The csv file contains the original quantities for each star, with the median, mode, mean and standard deviation of the individual age distributions added.
             </p>
             <p>
-                The age distribution for a star population displays both the sum of all the individual Monte Carlo realisations summed up (as bars), and the product of the G functions of each star (as a line).
+                The age distribution for a star population displays the sum of all the individual Monte Carlo realisations summed up.
             </p>
             <p>
                 Hovering over a specific age bin will higlight stars whose age estimate is within (fully opaque) or close (semi-transparent) to that bin. You can click on a bin to select it and investigate the CMD further without needing to be hovering. A checkbox lets you unselect the bin.
@@ -86,8 +86,10 @@
                         <label for="model">Grid model :</label>
                         <select id="model" name="model">
                             <option value="BaSTI">BaSTI</option>
+                            <!--
                             <option value="BaSTI_HST">BaSTI HST</option>
                             <option value="BaSTI_HST_alpha_zero">BaSTI HST solar-α</option>
+                            -->
                             <option value="Dartmouth">Dartmouth</option>
                             <option value="MIST">MIST</option>
                             <option value="PARSEC">PARSEC</option>

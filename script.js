@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var x = document.getElementById('hr_diagram')._fullLayout.xaxis.p2d(event.clientX - bb.left);
         var y = document.getElementById('hr_diagram')._fullLayout.yaxis.p2d(event.clientY - bb.top);
         update_inputs(x,y);
-        submit_star();
+        submit_star(clicked=true);
     });
     document.getElementById("model").addEventListener('change', function() {
         var model = document.getElementById("model").value;
@@ -357,7 +357,7 @@ function highlight_stars(age_bin) {
 
         for (var i = 0; i < isochrones.length; i++) {
             var isochrone_age = parseFloat(isochrones[i].hovertext.split(' ')[0]); // Extract age from hovertext
-            var age_diff = Math.abs(isochrone_age - age_bin);
+            var age_diff = Math.abs(isochrone_age - (age_bin-0.05));
             if (age_diff < closest_age_diff) {
                 closest_age_diff = age_diff;
                 closest_curve_index = i;
@@ -785,6 +785,7 @@ function update_errors() {
 }
 
 async function submit_star(clicked=false) {
+    console.log(clicked);
     var MG = document.getElementById("MG_input").value;
     var MoH = document.getElementById("MoH_input").value;
     var BP_RP = document.getElementById("BP_RP_input").value;
@@ -904,6 +905,9 @@ function load_model(model_name) {
 
 function load_isochrones(model) {
     return new Promise((resolve, reject) => {
+        if (model.includes('_cut')){
+            model = model.split('_')[0];
+        }
         $.getJSON('isochrones/isochrones_' + model + '.json', function(data) {
             resolve(data);
         }).fail(function() {
@@ -945,15 +949,18 @@ async function plot_isochrones(model) {
             var x = isochrone['BP-RP'];
             var y = isochrone.MG;
             
-            /*
-            while (x.length > 1000) {
-                x = x.filter((e,i) => i % 2 == 0);
-                y = y.filter((e,i) => i % 2 == 0);
+            if (model.includes('_cut')){
+                var new_x = [];
+                var new_y = [];
+                for (var j = 0; j < x.length; j++) {
+                    if (x[j] < 1.25 && y[j] < 4.25){
+                        new_x.push(x[j]);
+                        new_y.push(y[j]);
+                    }
+                }
+                x = new_x;
+                y = new_y;
             }
-            */
-
-            //x = x.slice(500, -1);
-            //y = y.slice(500, -1);
             
             var x_min = Math.min.apply(null, x);
             var x_max = Math.max.apply(null, x);
