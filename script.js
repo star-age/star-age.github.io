@@ -91,6 +91,7 @@ var n_pop = 0;
 var current_moh = 0;
 var csv_data = null;
 var invisible_histogram = null;
+var zoomed_in = false;
 
 function data_space_to_pixel_space(layout,data_size,direction) {
     if (direction == 'x'){
@@ -382,7 +383,8 @@ function highlight_stars(age_bin) {
 
 function zoom_in_out(){
     var ratio = (3-(-1))/(10-(-5));
-    if (layout.xaxis.range[1] == 3){
+    if (zoomed_in == false){
+        zoomed_in = true
         $('#zoom_div').html('<i class="fa-solid fa-search-minus"></i>Zoom-out');
         if (population.length == 0){
             layout.xaxis.range = [data[0].x[0]-0.25,data[0].x[0]+0.25];
@@ -400,6 +402,7 @@ function zoom_in_out(){
         }
     }
     else{
+        zoomed_in = false
         $('#zoom_div').html('<i class="fa-solid fa-search-plus"></i>Zoom-in');
         layout.xaxis.range = [-1,3];
         layout.yaxis.range = [10,-5];
@@ -661,6 +664,10 @@ async function submit_population() {
         points[0].visible = true;
     }
     display_age(flat_ages,final_histogram);
+    if (zoomed_in){
+        zoom_in_out();
+        zoom_in_out();
+    }
 
     $('body').removeClass('waiting');
     $('#loading_div').css('top','-100px');
@@ -785,7 +792,6 @@ function update_errors() {
 }
 
 async function submit_star(clicked=false) {
-    console.log(clicked);
     var MG = document.getElementById("MG_input").value;
     var MoH = document.getElementById("MoH_input").value;
     var BP_RP = document.getElementById("BP_RP_input").value;
@@ -839,6 +845,10 @@ async function submit_star(clicked=false) {
     Plotly.redraw('hr_diagram');
     plot_age_distribution(ages);
     update_errors();
+    if (zoomed_in){
+        zoom_in_out();
+        zoom_in_out();
+    }
 
     // Automatically select the closest age_bin in the invisible histogram
     var closest_bin = Math.round(mode_age * 10) / 10; // Closest bin center
@@ -1098,7 +1108,8 @@ function plot_age_distribution(ages, histogram = null) {
     };
     Plotly.addTraces('age_distribution', trace);
 
-    var max_value = get_max_occurence(ages)[1];
+    var occs = get_max_occurence(ages);
+    var max_value = occs[1];
 
     var fake_ages = [];
     for (var i = 0; i < 140; i++) {
@@ -1161,6 +1172,13 @@ function plot_age_distribution(ages, histogram = null) {
             'yaxis.range': [0, max_value]
         });
     }
+
+    // Automatically select the closest age_bin in the invisible histogram
+    var closest_bin = Math.round(occs[0]) / 10; // Closest bin center
+    var invisible_histogram = document.getElementById('age_distribution').data.filter(trace => trace.name === 'Hover Helper')[0];
+    y = histogram_layout.yaxis.range[1];
+    select_hist({ points: [{ x: closest_bin, y: y, data: { type: 'histogram' } }] }, 1);
+    highlight_stars(closest_bin);
 
     n_histograms = 1;
 }
