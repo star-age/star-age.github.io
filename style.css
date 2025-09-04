@@ -68,14 +68,41 @@ h1{
     width: 50%;
 }
 
+#logo{
+    display: block;
+    margin-left: 15%;
+    width: 750px;
+    height: auto;
+    margin-top: 25px;
+}
+
+#subtitle{
+    margin: 0 auto;
+    margin-left: calc(15% + 430px);
+    margin-top: -50px;
+    margin-bottom: 25px;
+}
+
 h2{
+    font-weight: normal;
     font-family: Roboto;
     font-style: normal;
     text-align: left;
     font-size: 1.25em;
-    margin: 0 auto;
-    margin-bottom: 25px;
-    margin-left: 20%;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+h2 a{
+    color: #528c5c;
+    text-decoration: underline;
+    font-family: RobotoSlab;
+    font-weight: bold;
+}
+
+h2 strong{
+    font-family: RobotoSlab;
+    font-weight: bold;
 }
 
 p, i{

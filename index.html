@@ -6,7 +6,7 @@
     <link rel="icon" href="src/favicon.ico" type="image/x-icon">
     <meta name='theme-color' content='#ebe8dd'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1">
-    <title>Stellar age estimator</title>
+    <title>Web NEST</title>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -17,8 +17,11 @@
 <body>
     <div id="loading_bar"></div>
     <div id="loading_div">Computing estimation...</div>
-    <h1>Stellar age estimator</h1>
-    <h2>Using Neural networks trained on stellar evolution models</h2>
+    <img id="logo" src="src/logo.png" alt="logo">
+    <div id="subtitle">
+        <h2><strong>N</strong>eural network <strong>E</strong>stimator of <strong>S</strong>tellar <strong>T</strong>imes</h2>
+        <h2>A web version of the <a href="https://star-age.github.io/NEST-docs">python package</a></h2>
+    </div>
     <div id="info">
         <div id="info_bg"></div>
         <i id="info_close" onclick="toggle_help()" class="fa-solid fa-xmark"></i>
@@ -33,7 +36,7 @@
                 <a target="_blank" href="https://rcweb.dartmouth.edu/stellar/">Dartmouth</a>,
                 <a target="_blank" href="https://waps.cfa.harvard.edu/MIST/">MIST</a>,
                 <a target="_blank" href="https://stev.oapd.inaf.it/PARSEC/">PARSEC</a>,
-                <a target="_blank" href="https://www.unige.ch/sciences/astro/evolution/en/database/syclist">SYCLIST</a> and
+                <a target="_blank" href="https://www.unige.ch/sciences/astro/evolution/en/database/syclist">Geneva</a> and
                 <a target="_blank" href="http://www.astro.yale.edu/yapsi/">YaPSI</a> isochrones. <span class="important">Don't use the YaPSI isochrones, they are broken right now.</span>
                 The neural networks are simple Multi-Layer Perceptrons with 4 hidden layers of 32,64,64 & 32 neurons, trained for 200 epochs. The training data size, i.e. the total number of points in the isochrone sets, depends on the model used.
             </p>
@@ -93,7 +96,7 @@
                             <option value="Dartmouth">Dartmouth</option>
                             <option value="MIST">MIST</option>
                             <option value="PARSEC">PARSEC</option>
-                            <option value="SYCLIST">SYCLIST</option>
+                            <option value="SYCLIST">Geneva</option>
                             <option value="YaPSI">YaPSI</option>
                         </select>
                         
