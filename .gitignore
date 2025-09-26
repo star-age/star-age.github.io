@@ -5,4 +5,3 @@
 *.csv
 *.pyc
 isochrones/isochrones_BaSTI_HST_alpha_zero.json
-isochrones/isochrones_BaSTI_HST.json
